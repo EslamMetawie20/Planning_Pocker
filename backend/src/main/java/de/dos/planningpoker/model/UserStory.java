@@ -4,24 +4,29 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
+
 @Getter
 @Setter
-@Table(name = "userStory")
 
+
+@Entity
+@Table(name = "userstory")
 public class UserStory {
     @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
-    @Column(name = "userStory_id")
-    private Long userStoryId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "userStory_estimate")
-    private Integer userStoryEstimate;
-    @Column(name = "userStory_name")
-    private String userStoryName;
-    @Column(name = "userStory_decription")
-    private String userStoryDescription;
-    @Column(name = "userStory_sessionId")
-    private Long sessionId;
+    @Column(nullable = false)
+    private String title;
 
+    @Column
+    private String description;
+
+    @Column(nullable = false)
+    private int position;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
+    private int estimation;
 }

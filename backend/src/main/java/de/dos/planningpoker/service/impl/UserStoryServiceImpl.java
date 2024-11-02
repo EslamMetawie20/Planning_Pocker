@@ -37,9 +37,9 @@ public class UserStoryServiceImpl implements UserStoryService {
     @Override
     public UserStory updateUserStoryById(Long id, UserStory userStory) {
         UserStory managedUserStory = this.getUserStoryById(id);
-        managedUserStory.setUserStoryName(userStory.getUserStoryName());
-        managedUserStory.setUserStoryEstimate(userStory.getUserStoryEstimate());
-        managedUserStory.setUserStoryDescription(userStory.getUserStoryDescription());
+        managedUserStory.setTitle(userStory.getTitle());
+        managedUserStory.setEstimation(userStory.getEstimation());
+        managedUserStory.setDescription(userStory.getDescription());
 
         return this.saveUserStory(managedUserStory);
     }
