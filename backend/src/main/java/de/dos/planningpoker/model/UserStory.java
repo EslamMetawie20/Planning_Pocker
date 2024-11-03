@@ -22,8 +22,7 @@ public class UserStory {
     @Column
     private String description;
 
-    @Column(nullable = false)
-    private int position;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", nullable = false)
