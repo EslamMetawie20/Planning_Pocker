@@ -12,18 +12,22 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
         borderTopLeftRadius: '10px',
         borderTopRightRadius: '10px',
         transition: 'transform 0.3s ease',
+        color: '#004259',
     },
     '& .Mui-selected': {
         backgroundColor: '#ffffff',
         boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
         transform: 'scale(1)',
+        color: '#004259',
     },
     '& .MuiTab-root:not(.Mui-selected)': {
         backgroundColor: '#73797C',
-        color: '#004259',
         fontSize: '0.9rem',
         height: '35px',
         transform: 'scale(0.9)',
+    },
+    '& .MuiTabs-indicator': {
+        backgroundColor: '#004259',
     },
 }));
 
@@ -61,6 +65,9 @@ function MainSession() {
                         position: 'absolute',
                         top: '-35px',
                         left: 0,
+                    }}
+                    TabIndicatorProps={{
+                        style: { backgroundColor: '#004259' },
                     }}
                 >
                     <Tab label="JOIN SESSION" />

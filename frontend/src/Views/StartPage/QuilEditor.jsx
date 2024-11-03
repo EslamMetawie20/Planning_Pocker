@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import 'react-quill/dist/quill.snow.css';
-import { Box, Typography, Grid } from "@mui/material";
+import { Box, Typography, Grid, TextField } from "@mui/material";
 import ReactQuill from 'react-quill';
-
 
 function QuilEditor() {
     const modules = {
@@ -37,26 +36,20 @@ function QuilEditor() {
         "font"
     ];
 
-    const [code, setCode] = useState("You can add your text here");
+    const [title, setTitle] = useState("Example Story Title");
+    const [content, setContent] = useState("You can add your text here");
 
-    const handleProcedureContentChange = (content) => {
-        setCode(content);
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value);
+    };
+
+    const handleContentChange = (content) => {
+        setContent(content);
     };
 
     return (
-        <Box
-            sx={{
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                padding: '16px',
-                backgroundColor: '#f9f9f9',
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                maxWidth: '800px',
-                margin: 'auto',
-                mt: 3
-            }}
-        >
-            <Grid container spacing={2}>
+        <Box sx={{ p: 3, backgroundColor: '#fffffff', borderRadius: '8px' }}>
+            <Grid container spacing={2} alignItems="center">
                 <Grid item xs={4} sx={{ display: 'flex', alignItems: 'flex-start', p: 2 }}>
                     <img
                         src="https://www.dos-online.de/wp-content/uploads/2023/08/cropped-DOS_Logo_2023_mit_UZ_RGB.png"
@@ -65,21 +58,28 @@ function QuilEditor() {
                     />
                 </Grid>
                 <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-end' }}>
-                    <Typography variant="h5" gutterBottom sx={{ fontFamily: 'Source Sans Pro, Verdana' }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontFamily: 'Source Sans Pro, Verdana', fontSize: { xs: '1.2rem', sm: '1.5rem' } }}>
                         SCRUM PLANNING POKER
                     </Typography>
                 </Grid>
             </Grid>
-            <Typography variant="h6" gutterBottom>
-                Quil Editor
-            </Typography>
+
+            <TextField
+                fullWidth
+                label="Story Title"
+                variant="outlined"
+                value={title}
+                onChange={handleTitleChange}
+                sx={{ mb: 2 }}
+            />
+
             <ReactQuill
                 theme="snow"
                 modules={modules}
                 formats={formats}
-                value={code}
-                onChange={handleProcedureContentChange}
-                style={{ height: '300px' }}
+                value={content}
+                onChange={handleContentChange}
+                style={{ height: '300px', width: '100%' }}
             />
         </Box>
     );

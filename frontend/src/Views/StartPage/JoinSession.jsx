@@ -8,20 +8,17 @@ function JoinSession() {
     const navigate = useNavigate();
 
     const handleJoinClick = () => {
-        navigate("/members"); // ينقل للصفحة الجديدة اللي فيها الـ Views
+        navigate("/members");
     };
 
     return (
         <Grid
             container
-            spacing={2}
             sx={{
                 width: '100%',
                 maxWidth: '600px',
                 mt: 3,
                 backgroundColor: 'transparent',
-                padding: 2,
-                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                 borderRadius: '8px',
                 margin: 'auto'
             }}

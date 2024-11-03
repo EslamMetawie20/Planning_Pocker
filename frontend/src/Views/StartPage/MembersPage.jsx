@@ -9,7 +9,7 @@ const MembersPage = () => {
     return (
         <Box
             sx={{
-                bgcolor: '#004259', // لون الخلفية الخارجي الأساسي
+                bgcolor: '#004259',
                 minHeight: '100vh',
                 display: 'flex',
                 alignItems: 'center',
