@@ -26,7 +26,7 @@ class SessionServiceUnitTest {
 	void createSession_ShouldSaveSession() {
 		// Arrange
 		Session session = new Session();
-		session.setName("Test Session");
+		session.setPosition(1);
 		when(sessionRepository.save(any(Session.class))).thenReturn(session);
 
 		// Act

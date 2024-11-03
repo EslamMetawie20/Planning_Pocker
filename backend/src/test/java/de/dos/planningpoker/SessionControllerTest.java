@@ -33,14 +33,11 @@ class SessionControllerTest {
     void shouldCreateNewSession() throws Exception {
         // Arrange
         Session inputSession = new Session();
-        inputSession.setName("Test Session");
-        // Setzen Sie hier weitere notwendige Eigenschaften
+        inputSession.setPosition(1);
 
         Session savedSession = new Session();
-        savedSession.setId(1L);
-        savedSession.setName("Test Session");
-
-        // Setzen Sie hier weitere notwendige Eigenschaften
+        savedSession.setId(1L);        // Wenn Id vom Typ Long ist
+        savedSession.setPosition(2);
 
         when(sessionService.save(any(Session.class))).thenReturn(savedSession);
 
@@ -50,16 +47,16 @@ class SessionControllerTest {
                         .content(objectMapper.writeValueAsString(inputSession)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id").value("1"))
-                .andExpect(jsonPath("$.name").value("Test Session"));
+                .andExpect(jsonPath("$.id").value(1))    // Wenn Id vom Typ Long ist
+                .andExpect(jsonPath("$.position").value(2));
     }
 
     @Test
     void shouldReturnBadRequestForInvalidSession() throws Exception {
         // Arrange
         Session invalidSession = new Session();
-
-        // Lassen Sie erforderliche Felder leer
+        invalidSession.setId(1L);
+        invalidSession.setPosition(-100);
 
         // Act & Assert
         mockMvc.perform(post("/api/sessions")
@@ -68,5 +65,16 @@ class SessionControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void shouldValidatePositivePosition() throws Exception {
+        // Arrange
+        Session sessionWithNegativePosition = new Session();
+        sessionWithNegativePosition.setPosition(-1);  // Negative Position
 
+        // Act & Assert
+        mockMvc.perform(post("/api/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sessionWithNegativePosition)))
+                .andExpect(status().isBadRequest());
+    }
 }
