@@ -5,10 +5,16 @@ import AddIcon from '@mui/icons-material/Add';
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import QuilEditor from './QuilEditor.jsx';
+import GoogleAvatars from "../../Common/Vars/GoogleAvatars";
 
 function CreateSession() {
     const [openQuilEditor, setOpenQuilEditor] = useState(false);
     const [sessionEdited, setSessionEdited] = useState(false);
+    const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
+
+    const [name, setName] = useState('');
+    const [position, setPosition] = useState('');
+    const [errors, setErrors] = useState({ name: false, position: false });
 
     const handleOpenQuilEditor = () => {
         setOpenQuilEditor(true);
@@ -17,6 +23,25 @@ function CreateSession() {
     const handleCloseQuilEditor = () => {
         setOpenQuilEditor(false);
         setSessionEdited(true);
+    };
+
+    const handleSwap = () => {
+        setCurrentAvatarIndex((prevIndex) =>
+            prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
+        );
+    };
+
+    const handleCreateSession = () => {
+
+        const newErrors = {
+            name: name.trim() === '',
+            position: position.trim() === '',
+        };
+        setErrors(newErrors);
+
+        if (!newErrors.name && !newErrors.position) {
+            console.log('Creating session...');
+        }
     };
 
     return (
@@ -31,7 +56,6 @@ function CreateSession() {
                 margin: 'auto'
             }}
         >
-            {/* صف الشعار والعنوان */}
             <Grid item xs={12} container spacing={2} alignItems="center" justifyContent="space-between">
                 <Grid item xs={4} sx={{ display: 'flex', alignItems: 'flex-start' }}>
                     <img
@@ -51,8 +75,8 @@ function CreateSession() {
                 <Grid item xs={4} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                     <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                         <img
-                            src="/google_Avatar.jpeg"
-                            alt="local-logo"
+                            src={GoogleAvatars[currentAvatarIndex]}
+                            alt="avatar-logo"
                             style={{ width: '170px', height: '170px', borderRadius: '50%' }}
                         />
                         <Box
@@ -69,7 +93,15 @@ function CreateSession() {
                                 justifyContent: 'center',
                                 width: '40px',
                                 height: '40px',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s, box-shadow 0.2s',
+                                '&:hover': {
+                                    transform: 'scale(1.1)',
+                                    boxShadow: 6,
+                                    bgcolor: '#f0f0f0',
+                                }
                             }}
+                            onClick={handleSwap}
                         >
                             <SwapHorizIcon sx={{ color: '#004259', fontSize: '1.2rem' }} />
                         </Box>
@@ -81,12 +113,20 @@ function CreateSession() {
                             fullWidth
                             label="Name"
                             variant="outlined"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            error={errors.name}
+                            helperText={errors.name ? 'This field is required' : ''}
                             sx={{ fontFamily: 'Source Sans Pro, Verdana' }}
                         />
                         <TextField
                             fullWidth
                             label="Position"
                             variant="outlined"
+                            value={position}
+                            onChange={(e) => setPosition(e.target.value)}
+                            error={errors.position}
+                            helperText={errors.position ? 'This field is required' : ''}
                             sx={{ fontFamily: 'Source Sans Pro, Verdana' }}
                         />
                         <Button
@@ -122,6 +162,7 @@ function CreateSession() {
                     variant="contained"
                     color="primary"
                     fullWidth
+                    onClick={handleCreateSession}
                     sx={{
                         bgcolor: '#004259',
                         padding: '10px 0',
