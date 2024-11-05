@@ -20,7 +20,7 @@ public class Session {
     private Long id;
     @NotNull(message = "Position is required")
     @Min(value = 0, message = "Position must be zero or positive")
-    private int position;
+    private String position;
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     private List<UserStory> userStories = new ArrayList<>();
 
