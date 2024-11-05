@@ -3,6 +3,7 @@ package de.dos.planningpoker.service.impl;
 import de.dos.planningpoker.model.UserStory;
 import de.dos.planningpoker.repository.UserStoryRepository;
 import de.dos.planningpoker.service.UserStoryService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,11 +27,17 @@ public class UserStoryServiceImpl implements UserStoryService {
 
     @Override
     public UserStory saveUserStory(UserStory userStory) {
+        if(userStory == null){
+            throw new IllegalArgumentException("userStory cannot be null");
+        }
         return userStoryRepository.save(userStory);
     }
 
     @Override
     public void deleteUserStoryById(Long id) {
+        if(!userStoryRepository.existsById(id)) {
+            throw new EntityNotFoundException("User Story not found with id " + id);
+        }
         userStoryRepository.deleteById(id);
     }
 
