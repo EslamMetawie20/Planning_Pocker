@@ -26,7 +26,7 @@ class SessionServiceUnitTest {
 	void createSession_ShouldSaveSession() {
 		// Arrange
 		Session session = new Session();
-		session.setPosition(1);
+		session.setPosition("Scrum Master");
 		when(sessionRepository.save(any(Session.class))).thenReturn(session);
 
 		// Act
