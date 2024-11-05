@@ -29,27 +29,27 @@ class SessionControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-//    @Test
-//    void shouldCreateNewSession() throws Exception {
-//        // Arrange
-//        Session inputSession = new Session();
-//        inputSession.setPosition("Scrum Master");
-////
-////        Session savedSession = new Session();
-//        savedSession.setId(1L);        // Wenn Id vom Typ Long ist
-//        savedSession.setPosition("Scrum Master");
+    @Test
+    void shouldCreateNewSession() throws Exception {
+        // Arrange
+        Session inputSession = new Session();
+        inputSession.setPosition("Scrum Master");
 //
-//        when(sessionService.save(any(Session.class))).thenReturn(savedSession);
-//
-//        // Act & Assert
-//        mockMvc.perform(post("/api/sessions")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(inputSession)))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(jsonPath("$.id").value(1))    // Wenn Id vom Typ Long ist
-//                .andExpect(jsonPath("$.position").value("Scrum Master"));
-//    }
+        Session savedSession = new Session();
+        savedSession.setId(1L);        // Wenn Id vom Typ Long ist
+        savedSession.setPosition("Scrum Master");
+
+        when(sessionService.save(any(Session.class))).thenReturn(savedSession);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/sessions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inputSession)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1))    // Wenn Id vom Typ Long ist
+                .andExpect(jsonPath("$.position").value("Scrum Master"));
+    }
 
     @Test
     void shouldReturnBadRequestForInvalidSession() throws Exception {
