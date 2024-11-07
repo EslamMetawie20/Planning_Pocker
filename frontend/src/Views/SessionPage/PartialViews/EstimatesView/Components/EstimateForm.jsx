@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import MiniCardComp from "./MiniCardComp";
 import { ChevronRight, LoopOutlined } from "@mui/icons-material";
 import { useDispatch } from "react-redux";
-import { assignEstimate } from "../../../redux/reducers/storySlice";
+import { assignEstimate } from "../../../../../_redux/reducers/storySlice";
 
 const EstimateForm = () => {
   const [fibonacci] = useState([1, 2, 3, 5, 8, 13, 21, 34, 55]);

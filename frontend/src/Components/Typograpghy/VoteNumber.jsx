@@ -1,4 +1,5 @@
 import { Avatar, Box, Stack, Typography, useTheme } from "@mui/material";
+import PropTypes from "prop-types";
 
 const VoteNumber = ({
   number = 8,
@@ -47,6 +48,13 @@ const VoteNumber = ({
       )}
     </Stack>
   );
+};
+
+VoteNumber.prototypes = {
+  number: PropTypes.number.isRequired,
+  caption: PropTypes.string,
+  includeCaption: PropTypes.bool,
+  alt: PropTypes.bool,
 };
 
 export default VoteNumber;

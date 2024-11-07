@@ -1,6 +1,7 @@
 import { BookmarkAdded, BookmarkBorderOutlined } from "@mui/icons-material";
 import { Stack, Typography, useTheme } from "@mui/material";
 import React from "react";
+import PropTypes from "prop-types";
 
 const StoryComp = ({
   title = "Example Story Title",
@@ -60,6 +61,13 @@ const StoryComp = ({
       </Typography>
     </Stack>
   );
+};
+
+StoryComp.prototypes = {
+  title: PropTypes.string.isRequired,
+  selected: PropTypes.bool,
+  estimate: PropTypes.number,
+  onClick: PropTypes.func,
 };
 
 export default StoryComp;

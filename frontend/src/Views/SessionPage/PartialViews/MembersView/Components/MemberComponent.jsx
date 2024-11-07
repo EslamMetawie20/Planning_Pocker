@@ -1,6 +1,7 @@
 import { Avatar, Stack, Typography, useTheme } from "@mui/material";
-import VoteNumber from "./../../../Components/Typograpghy/VoteNumber";
-import GoogleAvatars from "../../../Common/Vars/GoogleAvatars";
+import VoteNumber from "../../../../../Components/Typograpghy/VoteNumber";
+import GoogleAvatars from "../../../../../Common/Vars/GoogleAvatars";
+import PropTypes from "prop-types";
 
 const MemberComponent = ({
   name = "John Lee",
@@ -42,4 +43,12 @@ const MemberComponent = ({
   );
 };
 
+MemberComponent.prototypes = {
+  name: PropTypes.string.isRequired,
+  role: PropTypes.string.isRequired,
+  avatarIndex: PropTypes.number.isRequired,
+  vote: PropTypes.number,
+  voted: PropTypes.bool,
+  revealed: PropTypes.bool,
+};
 export default MemberComponent;

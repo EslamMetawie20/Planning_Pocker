@@ -1,11 +1,10 @@
-// hooks/useStories.js
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { STATUS } from "../Vars/Constants";
 import {
   fetchSessionStories,
   selectStory,
-} from "../../redux/reducers/storySlice";
+} from "../../_redux/reducers/storySlice";
 
 const useStories = () => {
   const dispatch = useDispatch();

@@ -1,5 +1,6 @@
 import { Button } from "@mui/material";
 import React from "react";
+import PropTypes from "prop-types";
 
 const MiniCardComp = ({ number = 1, selected = false, onClick = () => {} }) => {
   return (
@@ -22,4 +23,9 @@ const MiniCardComp = ({ number = 1, selected = false, onClick = () => {} }) => {
   );
 };
 
+MiniCardComp.prototypes = {
+  number: PropTypes.number.isRequired,
+  selected: PropTypes.bool,
+  onClick: PropTypes.func,
+};
 export default MiniCardComp;

@@ -1,7 +1,8 @@
 import React from "react";
 import { Box, useTheme } from "@mui/material";
+import { Outlet } from "react-router-dom";
 
-const BackgroundBox = ({ children }) => {
+const BackgroundBox = () => {
   const theme = useTheme();
   const mainColor = theme.palette.primary.main;
   const darkColor = theme.palette.primary.dark;
@@ -13,10 +14,10 @@ const BackgroundBox = ({ children }) => {
       height={"100vh"}
       paddingX={3}
       sx={{
-        background: `radial-gradient(circle, ${mainColor} 75%, ${darkColor} 100%)`,
+        background: `radial-gradient(circle, ${mainColor} 35%, ${darkColor} 100%)`,
       }}
     >
-      {children}
+      <Outlet />
     </Box>
   );
 };

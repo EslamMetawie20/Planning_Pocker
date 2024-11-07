@@ -1,6 +1,7 @@
 import React from "react";
 import { Paper, Box, Typography, Stack } from "@mui/material";
 import sxProps from "../../Common/Vars/sxProps";
+import PropTypes from "prop-types";
 
 const FrameComponent = ({
   title,
@@ -49,6 +50,15 @@ const FrameComponent = ({
       </Box>
     </Paper>
   );
+};
+
+FrameComponent.propTypes = {
+  title: PropTypes.string.isRequired,
+  icon: PropTypes.func,
+  children: PropTypes.array,
+  paperSx: PropTypes.string,
+  sx: PropTypes.object,
+  borderRadius: PropTypes.string,
 };
 
 export default FrameComponent;

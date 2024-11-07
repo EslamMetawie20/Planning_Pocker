@@ -1,5 +1,6 @@
 import { Stack, Typography } from "@mui/material";
 import React from "react";
+import PropTypes from "prop-types";
 
 const InfoRow = ({ title = "Time", value = "--:--" }) => {
   return (
@@ -12,6 +13,11 @@ const InfoRow = ({ title = "Time", value = "--:--" }) => {
       <Typography variant="h6">{value}</Typography>
     </Stack>
   );
+};
+
+InfoRow.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
 };
 
 export default InfoRow;

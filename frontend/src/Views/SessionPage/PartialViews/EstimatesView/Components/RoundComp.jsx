@@ -1,6 +1,7 @@
 import { Box, Button, Stack, Typography } from "@mui/material";
 import React from "react";
-import InfoRow from "./../../../Components/Typograpghy/InfoRow";
+import InfoRow from "../../../../../Components/Typograpghy/InfoRow";
+import PropTypes from "prop-types";
 
 const RoundComp = ({
   title = "Last round:",
@@ -37,6 +38,15 @@ const RoundComp = ({
       </Stack>
     </Box>
   );
+};
+
+RoundComp.prototypes = {
+  title: PropTypes.string,
+  time: PropTypes.string,
+  frequent: PropTypes.string,
+  high: PropTypes.string,
+  low: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 export default RoundComp;
