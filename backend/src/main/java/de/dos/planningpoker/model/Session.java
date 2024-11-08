@@ -1,5 +1,6 @@
 package de.dos.planningpoker.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class Session {
     @NotNull(message = "Position is required")
     private String position;
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<UserStory> userStories = new ArrayList<>();
 
 

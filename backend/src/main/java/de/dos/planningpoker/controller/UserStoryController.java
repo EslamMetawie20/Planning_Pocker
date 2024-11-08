@@ -18,6 +18,10 @@ public class UserStoryController {
     public List<UserStory> getUserStorys() {
         return userStoryService.getUserStories();
     }
+    @GetMapping("/{id}")
+    public UserStory getUserStory(@PathVariable Long id) {
+        return userStoryService.getUserStoryById(id);
+    }
     @PostMapping
     public void addUserStory(@RequestBody UserStory userStory) {
         userStoryService.saveUserStory(userStory);
