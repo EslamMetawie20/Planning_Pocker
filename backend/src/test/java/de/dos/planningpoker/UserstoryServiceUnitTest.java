@@ -113,8 +113,15 @@ public class UserstoryServiceUnitTest {
         updatedUserStory.setEstimation(3);
         updatedUserStory.setSession(session);
 
+        UserStory expectedUserStory = new UserStory();
+        expectedUserStory.setId(1L);
+        expectedUserStory.setTitle("Updated Title");
+        expectedUserStory.setDescription("Updated Description");
+
+        when(userStoryRepository.existsById(1L)).thenReturn(true);
         when(userStoryRepository.findById(1L)).thenReturn(Optional.of(existingUserStory));
-        when(userStoryRepository.save(existingUserStory)).thenReturn(existingUserStory);
+        when(userStoryRepository.save(any(UserStory.class))).thenReturn(existingUserStory);
+
 
         UserStory result = userStoryService.updateUserStoryById(1L, updatedUserStory);
 
