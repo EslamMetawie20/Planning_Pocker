@@ -69,7 +69,7 @@ function JoinSession() {
                         <img
                             src={GoogleAvatars[currentAvatarIndex]}
                             alt="avatar-logo"
-                            style={{ width: "170px", height: "170px", borderRadius: "50%" }}
+                            style={{ width: "140px", height: "140px", borderRadius: "50%" }}
                         />
                         <IconButton
                             sx={{
@@ -92,8 +92,11 @@ function JoinSession() {
                         </IconButton>
                     </Box>
                 </Grid>
-                <Grid item xs={8}>
-                    <Stack spacing={2} sx={{ mt: 2 }}>
+                <Grid item xs={8} sx={{ mt: 2 }}>
+                    <Stack
+                        spacing={2}
+                        sx={{ height: '100%', justifyContent: 'center', alignItems: 'center' }}
+                    >
                         <TextField
                             fullWidth
                             label="Name"
@@ -103,16 +106,6 @@ function JoinSession() {
                             onChange={(e) => setName(e.target.value)}
                             error={errors.name}
                             helperText={errors.name ? "This field is required" : ""}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Position"
-                            variant="outlined"
-                            value={position}
-                            size="small"
-                            onChange={(e) => setPosition(e.target.value)}
-                            error={errors.position}
-                            helperText={errors.position ? "This field is required" : ""}
                         />
                         <FormControl fullWidth size="small">
                             <InputLabel>Session ID</InputLabel>

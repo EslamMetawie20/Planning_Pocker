@@ -41,7 +41,7 @@ function MainSession() {
       sx={{
         position: "relative",
         width: "100%",
-        maxWidth: 600,
+        maxWidth: 500,
       }}
     >
       <StyledTabs

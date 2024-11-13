@@ -6,7 +6,7 @@ const BoxHeader = () => {
       direction={"row"}
       justifyContent={"space-between"}
       alignItems={"flex-end"}
-      height={"12vh"}
+      height={"10vh"}
       width={"100%"}
     >
       <img
