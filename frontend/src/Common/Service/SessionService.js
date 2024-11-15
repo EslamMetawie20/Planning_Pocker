@@ -6,7 +6,7 @@ import {
   QUEUE_PATHS,
 } from "../Vars/Channels";
 
-export async function getSessionIds() {
+export async function getActiveSessionsRequestAsync() {
   try {
     const response = await axios.get(`/api/sessions`);
     return response.data;

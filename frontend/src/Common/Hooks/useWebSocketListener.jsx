@@ -4,9 +4,12 @@ import { addMember, removeMember } from "../../_redux/reducers/memberSlice";
 import { connectSession } from "../../_redux/reducers/sessionSlice";
 import { QUEUE_PATHS, FRONTEND_ACTIONS } from "../Vars/Channels";
 import WebSocketService from "../Config/WebSocketConfig";
+import { useNavigate } from "react-router-dom";
+import { clearTokenData } from "../Utils/tokenUtils";
 
 const useWebSocketListener = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { sessionId, token } = useSelector((state) => state.session);
 
   const setupMemberListeners = () => {
@@ -25,15 +28,20 @@ const useWebSocketListener = () => {
         () => {
           setupMemberListeners();
           dispatch(connectSession(token));
+          navigate("/session");
         },
-        (error) => console.error("STOMP connection error:", error)
+        (error) => {
+          console.error("STOMP connection error:", error);
+          clearTokenData();
+          navigate("/");
+        }
       );
     }
 
     return () => {
       WebSocketService.disconnect();
     };
-  }, [sessionId, token, dispatch]);
+  }, [sessionId, token, dispatch, navigate]);
 };
 
 export default useWebSocketListener;

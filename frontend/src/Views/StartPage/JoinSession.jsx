@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   TextField,
@@ -11,18 +10,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  useTheme,
   FormHelperText,
 } from "@mui/material";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import { ChevronRight } from "@mui/icons-material";
 import GoogleAvatars from "../../Common/Vars/GoogleAvatars";
 import BoxHeader from "../../Components/Frames/BoxHeader";
-import { getSessionIds } from "../../Common/Service/SessionService";
+import { getActiveSessionsRequestAsync } from "../../Common/Service/SessionService";
+import { useDispatch } from "react-redux";
+import { joinSession } from "../../_redux/reducers/sessionSlice";
 
 function JoinSession() {
-  const theme = useTheme();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
   const [name, setName] = useState("");
   const [sessionId, setSessionId] = useState("");
@@ -46,12 +45,17 @@ function JoinSession() {
     setErrors(newErrors);
 
     if (!newErrors.name && !newErrors.sessionId) {
-      navigate("/members");
+      const request = {
+        sessionId,
+        name,
+        avatarIndex: currentAvatarIndex,
+      };
+      dispatch(joinSession(request));
     }
   };
 
   useEffect(() => {
-    getSessionIds()
+    getActiveSessionsRequestAsync()
       .then((data) => {
         setSessionIds(data.map((session) => session.id));
       })

@@ -9,8 +9,7 @@ const useCreateSession = () => {
   const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
 
   const [name, setName] = useState("");
-  const [position, setPosition] = useState("");
-  const [errors, setErrors] = useState({ name: false, position: false });
+  const [errors, setErrors] = useState({ name: false });
 
   const handleOpenQuilEditor = () => {
     setOpenQuilEditor(true);
@@ -22,7 +21,7 @@ const useCreateSession = () => {
 
   const handleSwap = () => {
     setCurrentAvatarIndex((prevIndex) =>
-      prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1,
+      prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
     );
   };
 
@@ -43,14 +42,17 @@ const useCreateSession = () => {
   const handleCreateSession = () => {
     const newErrors = {
       name: name.trim() === "",
-      position: position.trim() === "",
     };
     setErrors(newErrors);
 
-    if (!newErrors.name && !newErrors.position) {
+    if (!newErrors.name) {
       const request = {
-        position,
-        initialStory,
+        name,
+        initialStory: {
+          title: initialStory?.title,
+          description: initialStory?.content,
+        },
+        avatarIndex: currentAvatarIndex,
       };
       dispatch(createSession(request));
     }
@@ -64,8 +66,6 @@ const useCreateSession = () => {
     currentAvatarIndex,
     setName,
     name,
-    setPosition,
-    position,
     sessionEdited,
     openQuilEditor,
     errors,

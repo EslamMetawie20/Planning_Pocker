@@ -1,5 +1,6 @@
 import { addMember } from "../../_redux/reducers/memberSlice";
 import { addStory } from "../../_redux/reducers/storySlice";
+import { STATUS } from "../Vars/Constants";
 
 export const dispatchSessionData = (dispatch, userStories, members) => {
   // Dispatch addStory action for each story
@@ -18,9 +19,9 @@ export const dispatchSessionData = (dispatch, userStories, members) => {
   members.forEach((member) =>
     dispatch(
       addMember({
-        id: member.id,
-        name: member.name,
-        avatarIndex: member.avatarIndex,
+        id: member?.id,
+        name: member?.name,
+        avatarIndex: member?.avatarIndex,
         lastVote: 0,
         voted: false,
       })

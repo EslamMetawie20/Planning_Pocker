@@ -38,6 +38,16 @@ class WebSocketService {
       if (onErrorCallback) onErrorCallback(error);
     };
 
+    this.stompClient.onWebSocketClose = (error) => {
+      this.isConnected = false;
+      if (onErrorCallback) onErrorCallback(error);
+    };
+
+    this.stompClient.onWebSocketError = (error) => {
+      this.isConnected = false;
+      if (onErrorCallback) onErrorCallback(error);
+    };
+
     // Connect to the WebSocket
     this.stompClient.activate();
   }

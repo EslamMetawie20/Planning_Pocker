@@ -1,6 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { STATUS } from "../../Common/Vars/Constants";
-import { getValidSessionFromToken } from "../../Common/Utils/tokenUtils";
+import {
+  clearTokenData,
+  getValidSessionFromToken,
+  setTokenData,
+} from "../../Common/Utils/tokenUtils";
 import {
   createSessionSocket,
   joinSessionSocket,
@@ -29,18 +33,17 @@ if (savedSession) {
 
 export const createSession = createAsyncThunk(
   "session/createSession",
-  async ({ name, initialStory }, { rejectWithValue }) => {
-    const request = { name, initialStory };
-
+  async (request, { dispatch, rejectWithValue }) => {
     return new Promise((resolve) => {
       createSessionSocket(
         request,
         (data) => {
           const { sessionId, token } = data;
-          localStorage.setItem("sessionToken", token);
+          setTokenData(token);
           resolve({ sessionId, token });
         },
         (error) => {
+          dispatch(clearSession());
           rejectWithValue(error);
         }
       );
@@ -50,18 +53,17 @@ export const createSession = createAsyncThunk(
 
 export const joinSession = createAsyncThunk(
   "session/joinSession",
-  async ({ sessionId, name }, { rejectWithValue }) => {
-    const request = { sessionId, name };
-
+  async (request, { dispatch, rejectWithValue }) => {
     return new Promise((resolve) => {
       joinSessionSocket(
         request,
         (data) => {
           const { sessionId, token } = data;
-          localStorage.setItem("sessionToken", token);
+          setTokenData(token);
           resolve({ sessionId, token });
         },
         (error) => {
+          dispatch(clearSession());
           rejectWithValue(error);
         }
       );
@@ -75,6 +77,7 @@ export const leaveSession = createAsyncThunk(
     try {
       WebSocketService.close();
       dispatch(clearSession());
+      return true;
     } catch (error) {
       return rejectWithValue("Failed to leave the session.");
     }
@@ -88,11 +91,12 @@ export const connectSession = createAsyncThunk(
       reconnectSessionSocket(
         token,
         (data) => {
-          const { sessionId, userStories, members } = data;
+          const { userStories, members } = data;
           dispatchSessionData(dispatch, userStories, members);
-          resolve({ sessionId, token });
+          resolve();
         },
         (error) => {
+          dispatch(clearSession());
           rejectWithValue(error);
         }
       );
@@ -100,7 +104,13 @@ export const connectSession = createAsyncThunk(
   }
 );
 
-const thunks = [createSession, joinSession, leaveSession, connectSession];
+const thunkReducers = [
+  createSession,
+  joinSession,
+  // leaveSession,
+  // connectSession,
+];
+
 const sessionSlice = createSlice({
   name: "session",
   initialState,
@@ -108,11 +118,11 @@ const sessionSlice = createSlice({
     clearSession(state) {
       state.sessionId = null;
       state.token = null;
-      localStorage.removeItem("sessionToken");
+      clearTokenData();
     },
   },
   extraReducers: (builder) => {
-    thunks.forEach((thunk) => {
+    thunkReducers.forEach((thunk) => {
       builder
         .addCase(thunk.pending, handlePending)
         .addCase(thunk.fulfilled, handleFulfilled)

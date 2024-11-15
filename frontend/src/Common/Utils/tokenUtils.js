@@ -13,14 +13,14 @@ export function getValidSessionFromToken() {
 
     // Check if the token is expired
     if (Date.now() >= exp * 1000) {
-      localStorage.removeItem("sessionToken");
+      clearTokenData();
       return null;
     }
 
     return { sessionId, token };
   } catch (error) {
     console.error("Failed to decode session token:", error);
-    localStorage.removeItem("sessionToken");
+    clearTokenData();
     return null;
   }
 }
@@ -38,7 +38,19 @@ export function getTokenData() {
     return { sessionId, memberId, name, isCreator, exp };
   } catch (error) {
     console.error("Failed to decode session token:", error);
-    localStorage.removeItem("sessionToken");
+    clearTokenData();
     return null;
   }
+}
+
+export function setTokenData(token) {
+  if (!token || token !== "") {
+    return null;
+  }
+
+  localStorage.setItem("sessionToken", token);
+}
+
+export function clearTokenData() {
+  localStorage.removeItem("sessionToken");
 }
