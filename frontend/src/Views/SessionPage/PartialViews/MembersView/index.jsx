@@ -1,21 +1,13 @@
-import React, { useEffect } from "react"; // Import useEffect
+import React from "react";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
 import { Stack } from "@mui/material";
 import MemberComponent from "./Components/MemberComponent";
-import { fetchSessionMembers } from "../../../../_redux/reducers/memberSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { STATUS } from "../../../../Common/Vars/Constants";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
 
 const MembersView = () => {
-  const dispatch = useDispatch();
   const { members, status } = useSelector((state) => state.member);
-
-  useEffect(() => {
-    if (status === STATUS.IDLE) {
-      dispatch(fetchSessionMembers());
-    }
-  }, [status, dispatch]);
 
   return (
     <FrameComponent

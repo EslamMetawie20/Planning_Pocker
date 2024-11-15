@@ -5,7 +5,7 @@ import MembersView from "./PartialViews/MembersView/index";
 import StoryView from "./PartialViews/StoryView/index";
 import EstimatesView from "./PartialViews/EstimatesView/index";
 
-const MembersPage = () => {
+const SessionPage = () => {
   return (
     <Stack
       spacing={1}
@@ -34,4 +34,4 @@ const MembersPage = () => {
   );
 };
 
-export default MembersPage;
+export default SessionPage;
