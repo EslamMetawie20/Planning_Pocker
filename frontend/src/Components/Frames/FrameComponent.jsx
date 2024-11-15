@@ -54,9 +54,9 @@ const FrameComponent = ({
 
 FrameComponent.propTypes = {
   title: PropTypes.string.isRequired,
-  icon: PropTypes.func,
+  icon: PropTypes.object,
   children: PropTypes.array,
-  paperSx: PropTypes.string,
+  paperSx: PropTypes.object,
   sx: PropTypes.object,
   borderRadius: PropTypes.string,
 };

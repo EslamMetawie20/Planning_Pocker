@@ -18,7 +18,7 @@ const StoryView = () => {
       paperSx={{
         flex: 3,
       }}
-      title={selectedStory?.title}
+      title={selectedStory?.title || ""}
       icon={
         <IconButton>
           <EditRounded color="secondary" fontSize="small" />
