@@ -15,9 +15,9 @@ public class PlanningPokerSession {
     private Map<String, User> users = new ConcurrentHashMap<>();
     private boolean active;
 
-    public PlanningPokerSession(String scrumMasterId, String id) {
+    public PlanningPokerSession(String id, String scrumMasterId) {
         this.id = id;
-        this.scrumMasterId = scrumMasterId;
+        // this.scrumMasterId = scrumMasterId;
         this.active = true;
     }
 
