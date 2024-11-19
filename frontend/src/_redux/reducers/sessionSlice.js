@@ -38,6 +38,7 @@ export const createSession = createAsyncThunk(
       createSessionSocket(
         request,
         (data) => {
+          console.log(data);
           const { sessionId, token } = data;
           setTokenData(token);
           resolve({ sessionId, token });

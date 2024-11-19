@@ -1,4 +1,5 @@
-import { Stomp } from "@stomp/stompjs";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
 class WebSocketService {
   static instance = null;
@@ -19,14 +20,19 @@ class WebSocketService {
     }
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
-    const wsUrl = apiUrl.replace(/^http/, "ws");
+    const sockJsUrl = apiUrl.replace(/^http/, "http") + "/planning-poker";
 
-    // Initialize the STOMP client
-    this.stompClient = Stomp.client(wsUrl);
+    // Initialize the STOMP client using SockJS
+    this.stompClient = new Client({
+      webSocketFactory: () => new SockJS(sockJsUrl),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
 
     // Define the STOMP client's onConnect behavior
     this.stompClient.onConnect = (frame) => {
-      console.log("Connected to STOMP");
+      console.log("Connected to STOMP with SockJS");
       this.isConnected = true;
       if (onConnectCallback) onConnectCallback(frame);
     };
@@ -48,7 +54,7 @@ class WebSocketService {
       if (onErrorCallback) onErrorCallback(error);
     };
 
-    // Connect to the WebSocket
+    // Activate the STOMP client to start the connection
     this.stompClient.activate();
   }
 
@@ -79,7 +85,7 @@ class WebSocketService {
 
   sendMessage(destination, body) {
     if (this.isConnected) {
-      this.stompClient.send(destination, {}, JSON.stringify(body));
+      this.stompClient.publish({ destination, body: JSON.stringify(body) });
     } else {
       console.error("STOMP client is not connected. Message not sent.");
     }

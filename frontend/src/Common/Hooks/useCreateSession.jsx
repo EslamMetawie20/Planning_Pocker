@@ -46,14 +46,16 @@ const useCreateSession = () => {
     setErrors(newErrors);
 
     if (!newErrors.name) {
-      const request = {
-        name,
-        initialStory: {
-          title: initialStory?.title,
-          description: initialStory?.content,
-        },
-        avatarIndex: currentAvatarIndex,
-      };
+      // const request = {
+      //   name,
+      //   initialStory: {
+      //     title: initialStory?.title,
+      //     description: initialStory?.content,
+      //   },
+      //   avatarIndex: currentAvatarIndex,
+      // };
+
+      const request = { userName: name };
       dispatch(createSession(request));
     }
   };

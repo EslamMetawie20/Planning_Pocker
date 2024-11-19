@@ -23,7 +23,7 @@ const useWebSocketListener = () => {
   };
 
   useEffect(() => {
-    if (sessionId && token) {
+    if (sessionId) {
       WebSocketService.connect(
         () => {
           setupMemberListeners();
@@ -37,10 +37,6 @@ const useWebSocketListener = () => {
         }
       );
     }
-
-    return () => {
-      WebSocketService.disconnect();
-    };
   }, [sessionId, token, dispatch, navigate]);
 };
 

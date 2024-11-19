@@ -4,6 +4,7 @@ import {
   BACKEND_ACTIONS,
   FRONTEND_ACTIONS,
   QUEUE_PATHS,
+  TOPIC_PATHS,
 } from "../Vars/Channels";
 
 export async function getActiveSessionsRequestAsync() {
@@ -28,29 +29,26 @@ export async function createSessionRequestAsync(request) {
 
 export const createSessionSocket = (request, onSuccess, onError) => {
   WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.CREATE_SESSION, request);
-
     // Subscribe to receive the response and immediately unsubscribe after receiving it
     const subscription = WebSocketService.subscribe(
-      QUEUE_PATHS.RECEIVE_MESSAGE,
+      TOPIC_PATHS.SESSION_CREATED,
       (response) => {
-        if (response.action === FRONTEND_ACTIONS.SESSION_CREATED) {
-          onSuccess(response.data);
-        } else if (
-          response.action === FRONTEND_ACTIONS.SESSION_CREATION_FAILED
-        ) {
+        console.log(response);
+        if (response.sessionId) {
+          onSuccess(response);
+        } else if (response.error) {
           onError(response.error || "Failed to create session");
         }
         subscription.unsubscribe();
       }
     );
+
+    WebSocketService.sendMessage(BACKEND_ACTIONS.CREATE_SESSION, request);
   }, onError);
 };
 
 export const joinSessionSocket = (request, onSuccess, onError) => {
   WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.JOIN_SESSION, request);
-
     const subscription = WebSocketService.subscribe(
       QUEUE_PATHS.RECEIVE_MESSAGE,
       (response) => {
@@ -62,13 +60,13 @@ export const joinSessionSocket = (request, onSuccess, onError) => {
         subscription.unsubscribe();
       }
     );
+
+    WebSocketService.sendMessage(BACKEND_ACTIONS.JOIN_SESSION, request);
   }, onError);
 };
 
 export const reconnectSessionSocket = (token, onSuccess, onError) => {
   WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.RECONNECT_SESSION, token);
-
     const subscription = WebSocketService.subscribe(
       QUEUE_PATHS.RECEIVE_MESSAGE,
       (response) => {
@@ -82,5 +80,7 @@ export const reconnectSessionSocket = (token, onSuccess, onError) => {
         subscription.unsubscribe();
       }
     );
+
+    WebSocketService.sendMessage(BACKEND_ACTIONS.RECONNECT_SESSION, token);
   }, onError);
 };

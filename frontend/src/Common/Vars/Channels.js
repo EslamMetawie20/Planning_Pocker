@@ -4,14 +4,15 @@ export const QUEUE_PATHS = {
 };
 
 export const TOPIC_PATHS = {
+  SESSION_CREATED: "/topic/session/created",
   SESSION_UPDATES: "/topic/sessionUpdates",
 };
 
 export const BACKEND_ACTIONS = {
-  CREATE_SESSION: "/app/createSession",
-  JOIN_SESSION: "/app/joinSession",
-  LEAVE_SESSION: "/app/leaveSession",
-  RECONNECT_SESSION: "/app/reconnectSession",
+  CREATE_SESSION: "/app/poker/create",
+  JOIN_SESSION: "/app/poker/join",
+  LEAVE_SESSION: "/app/poker/leave",
+  CLOSE_SESSION: "/app/poker/close",
 };
 
 export const FRONTEND_ACTIONS = {
