@@ -1,4 +1,4 @@
-package de.dos.planningpoker.model;
+package de.dos.planningpoker.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -12,13 +12,11 @@ import java.util.List;
 @AllArgsConstructor
 public class SessionState {
     private String sessionId;
-    private User currentUser;
     private String scrumMaster;
     private List<User> participants;
 
-    public SessionState(PlanningPokerSession session, User currentUser) {
+    public SessionState(PlanningPokerSession session) {
         this.sessionId = session.getId();
-        this.currentUser = currentUser;
         this.scrumMaster = session.getScrumMasterId();
         this.participants = new ArrayList<>(session.getUsers().values());
     }
