@@ -1,8 +1,9 @@
 package de.dos.planningpoker.controller;
 
 import de.dos.planningpoker.dto.*;
+import de.dos.planningpoker.enumeration.NotificationType;
 import de.dos.planningpoker.enumeration.Role;
-import de.dos.planningpoker.model.ErrorResponse;
+import de.dos.planningpoker.dto.ErrorResponse;
 import de.dos.planningpoker.model.PlanningPokerSession;
 import de.dos.planningpoker.model.User;
 import lombok.RequiredArgsConstructor;
@@ -18,54 +19,58 @@ import java.util.UUID;
 public class PlanningPokerController {
     private final SimpMessagingTemplate messagingTemplate;
     private PlanningPokerSession session;
-    @MessageMapping("poker/create")
+
+    @MessageMapping("/poker/create")
     @SendTo("/topic/session/created")
-    public SessionResponse createSession(CreateSessionRequest request){
+    public SessionResponse createSession(CreateSessionRequest createSessionRequest){
         // generate sessionID
         String sessionId = UUID.randomUUID().toString().substring(0, 8);
-
+        // create scrum master
         User scrumMaster = new User(
                 UUID.randomUUID().toString(),
-                request.getUserName(),
-                Role.SCRUM_MASTER
+                createSessionRequest.getUserName(),
+                Role.SCRUM_MASTER,
+                sessionId
         );
 
         // create new session
-        session = new PlanningPokerSession(sessionId, scrumMaster.getId());
+        session = new PlanningPokerSession(sessionId);
         session.addUser(scrumMaster);
 
         //return session details
         return SessionResponse.builder()
                 .sessionId(sessionId)
                 .scrumMasterName(scrumMaster.getName())
-                .joinUrl("/join" + sessionId)
+                .joinUrl("/join/" + sessionId)
                 .build();
     }
     @MessageMapping("/poker/join")
-    public void join(JoinRequest request){
+    public void join(JoinRequest joinRequest){
         if(session == null){
-            sendErrorToUser(request.getUserName(), "Session not found");
+            sendErrorToUser(joinRequest.getUserName(), "Session not found");
             return;
         }
         if(!session.isActive()){
-            sendErrorToUser(request.getUserName(), "Session is no longer active");
+            sendErrorToUser(joinRequest.getUserName(), "Session is no longer active");
             return;
         }
 
         // create new User
         User user = new User(
                 UUID.randomUUID().toString(),
-                request.getUserName(),
-                Role.TEAM_MEMBER
+                joinRequest.getUserName(),
+                Role.TEAM_MEMBER,
+                session.getId()
         );
         // add user to session
         session.addUser(user);
 
+        ParticipantNotification notification = new ParticipantNotification(user.getName(), NotificationType.JOIN);
         // notify all participants about the new member
-        notifyParticipants();
+        notifyParticipants(notification);
 
-        // send session state to new participant
-        sendSessionState(user);
+        // send session state to all users
+        sendSessionState();
     }
     @MessageMapping("/poker/leave")
     public void leave(LeaveRequest request){
@@ -78,33 +83,45 @@ public class PlanningPokerController {
         }
         session.removeUser(user.getId());
 
-        notifyParticipants();
+        ParticipantNotification notification = new ParticipantNotification(user.getName(), NotificationType.LEAVE);
+        notifyParticipants(notification);
+
+        // send session state to all users
+        sendSessionState();
     }
     @MessageMapping("/poker/close")
     public void closeSession(CloseSessionRequest request){
         if(session == null){
             return;
         }
-        if(!session.getScrumMasterId().equals(request.getUserId())){
-            sendErrorToUser(session.getScrumMasterId(), "Only Scrum Master can close");
+        if(!session.isActive()){
             return;
+        }
+        // if user is not scrum master, then can't close session
+        if(!session.getScrumMasterId().equals(request.getUserId())){
+            sendErrorToUser(request.getUserId(), "Only Scrum Master can close");
+            return;
+        }
+        if(!session.getUsers().isEmpty()){
+            sendErrorToUser(request.getUserId(), "Some team members are not left");
         }
         session.setActive(false);
     }
 
-    private void notifyParticipants() {
-        messagingTemplate.convertAndSend("/topic/session/" + session.getId() + "/participants", session.getUsers().values());
+    private void notifyParticipants(ParticipantNotification notification) {
+        messagingTemplate.convertAndSend("/topic/session/" + session.getId() + "/participants", notification);
     }
 
-    private void sendErrorToUser(String userName, String message) {
-        messagingTemplate.convertAndSendToUser(userName,"queue/errors", new ErrorResponse(message));
+    // send error message to specific user
+    private void sendErrorToUser(String userId, String message) {
+        messagingTemplate.convertAndSendToUser(userId,"queue/errors", new ErrorResponse(message));
     }
-
-    private void sendSessionState(User user) {
+    // send updated sessionState to user
+    private void sendSessionState() {
         // create session state for specific user
-        SessionState sessionState = new SessionState(session, user);
+        SessionState sessionState = new SessionState(session);
         // send state to specific user
-        messagingTemplate.convertAndSendToUser(user.getId(), "/queue/session/state", sessionState);
+        messagingTemplate.convertAndSend("/topic/session/state", sessionState);
     }
 
 }

@@ -12,12 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlanningPokerSession {
     private String id;
     private String scrumMasterId;
+    // Using ConcurrentHashMap for thread-safe operations
     private Map<String, User> users = new ConcurrentHashMap<>();
     private boolean active;
 
-    public PlanningPokerSession(String id, String scrumMasterId) {
+    public PlanningPokerSession(String id) {
         this.id = id;
-        // this.scrumMasterId = scrumMasterId;
         this.active = true;
     }
 
