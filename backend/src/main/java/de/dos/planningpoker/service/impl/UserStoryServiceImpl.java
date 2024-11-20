@@ -1,9 +1,11 @@
 package de.dos.planningpoker.service.impl;
 
+import de.dos.planningpoker.model.PlanningPokerSession;
 import de.dos.planningpoker.model.UserStory;
 import de.dos.planningpoker.repository.UserStoryRepository;
 import de.dos.planningpoker.service.UserStoryService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,16 +14,10 @@ import java.util.List;
  * Diese Klasse stellt die Geschäftslogik für die Verwaltung von User Stories bereit.
  */
 @Service
+@RequiredArgsConstructor
 public class UserStoryServiceImpl implements UserStoryService {
+
     private final UserStoryRepository userStoryRepository;
-    /**
-     * Konstruktor für die UserStoryServiceImpl-Klasse.
-     *
-     * @param userStoryRepository Das Repository für den Datenbankzugriff
-     */
-    public UserStoryServiceImpl(UserStoryRepository userStoryRepository) {
-        this.userStoryRepository = userStoryRepository;
-    }
 
     /**
      * Sucht eine User Story anhand ihrer ID.

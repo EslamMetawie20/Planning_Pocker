@@ -2,67 +2,75 @@ package de.dos.planningpoker.controller;
 
 import de.dos.planningpoker.model.UserStory;
 import de.dos.planningpoker.service.UserStoryService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
 
 import java.util.List;
-
 /**
  * REST Controller für die Verwaltung von User Stories im Planning Poker System.
  * Stellt Endpunkte für CRUD-Operationen (Create, Read, Update, Delete) von User Stories bereit.
  */
-@RestController
-@RequestMapping("/api/userstorys")
+@Controller
+@RequiredArgsConstructor
 public class UserStoryController {
-    @Autowired
-    private UserStoryService userStoryService;
-    /**
-     * Ruft alle User Stories aus dem System ab.
-     *
-     * @return Eine Liste aller User Stories
-     */
-    @GetMapping
-    public List<UserStory> getUserStorys() {
+
+    private final UserStoryService userStoryService;
+
+    private final SimpMessagingTemplate messagingTemplate;
+
+
+    // Subscribe to get all user stories
+    @MessageMapping("/userstories/getAll")
+    @SendTo("/topic/userstories")
+    public List<UserStory> getUserStories() {
         return userStoryService.getUserStories();
     }
-    /**
-     * Ruft eine spezifische User Story anhand ihrer ID ab.
-     *
-     * @param id Die ID der gesuchten User Story
-     * @return Die gefundene User Story
-     */
-    @GetMapping("/{id}")
-    public UserStory getUserStory(@PathVariable Long id) {
+
+    // Subscribe to get a specific user story
+    @MessageMapping("/userstories/get/{id}")
+    @SendTo("/topic/userstory/{id}")
+    public UserStory getUserStory(@DestinationVariable Long id) {
         return userStoryService.getUserStoryById(id);
     }
-    /**
-     * Fügt eine neue User Story zum System hinzu.
-     *
-     * @param userStory Die zu speichernde User Story
-     */
-    @PostMapping
-    public void addUserStory(@RequestBody UserStory userStory) {
-        userStoryService.saveUserStory(userStory);
+
+    // Add new user story
+    @MessageMapping("/userstories/add")
+    public void addUserStory(UserStory userStory) {
+        UserStory savedStory = userStoryService.saveUserStory(userStory);
+        // Broadcast the new user story to all subscribers
+        messagingTemplate.convertAndSend("/topic/userstories/new", savedStory);
+        // Also update the full list
+        messagingTemplate.convertAndSend("/topic/userstories",
+                userStoryService.getUserStories());
     }
-    /**
-     * Aktualisiert eine bestehende User Story.
-     *
-     * @param id Die ID der zu aktualisierenden User Story
-     * @param userStory Die aktualisierten Daten der User Story
-     */
-    @PutMapping("/{id}")
-    public void updateUserStory(@PathVariable Long id, @RequestBody UserStory userStory) {
-        userStoryService.updateUserStoryById(id, userStory);
+
+    // Update existing user story
+    @MessageMapping("/userstories/update/{id}")
+    public void updateUserStory(@DestinationVariable Long id, UserStory userStory) {
+        UserStory updatedStory = userStoryService.updateUserStoryById(id, userStory);
+        // Broadcast the updated user story
+        messagingTemplate.convertAndSend("/topic/userstories/updated", updatedStory);
+        // Update the specific story topic
+        messagingTemplate.convertAndSend("/topic/userstory/" + id, updatedStory);
+        // Also update the full list
+        messagingTemplate.convertAndSend("/topic/userstories",
+                userStoryService.getUserStories());
     }
-    /**
-     * Löscht eine User Story aus dem System.
-     *
-     * @param id Die ID der zu löschenden User Story
-     */
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserStory(@PathVariable Long id) {
+
+    // Delete user story
+    @MessageMapping("/userstories/delete/{id}")
+    public void deleteUserStory(@DestinationVariable Long id) {
         userStoryService.deleteUserStoryById(id);
+        // Broadcast the deletion
+        messagingTemplate.convertAndSend("/topic/userstories/deleted", id);
+        // Also update the full list
+        messagingTemplate.convertAndSend("/topic/userstories",
+                userStoryService.getUserStories());
     }
 }
+
+
