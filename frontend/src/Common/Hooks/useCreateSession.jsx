@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import GoogleAvatars from "../Vars/GoogleAvatars";
-import { createSession } from "../../_redux/reducers/sessionSlice";
+import { createSession, updateStory } from "../../_redux/reducers/sessionSlice";
 import { useDispatch } from "react-redux";
 
 const useCreateSession = () => {
@@ -10,6 +10,9 @@ const useCreateSession = () => {
 
   const [name, setName] = useState("");
   const [errors, setErrors] = useState({ name: false });
+  const [initialStory, setInitialStory] = useState({}); // Story data
+
+  const dispatch = useDispatch();
 
   const handleOpenQuilEditor = () => {
     setOpenQuilEditor(true);
@@ -21,11 +24,11 @@ const useCreateSession = () => {
 
   const handleSwap = () => {
     setCurrentAvatarIndex((prevIndex) =>
-      prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
+        prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
     );
   };
 
-  const [initialStory, setInitialStory] = useState({});
+  // Update initialStory data when data is edited in the QuilEditor
   const getQuillData = useCallback((title, content) => {
     setInitialStory({ title, content });
   }, []);
@@ -38,7 +41,12 @@ const useCreateSession = () => {
     }
   }, [initialStory]);
 
-  const dispatch = useDispatch();
+  // Function to handle story update
+  const handleUpdateStory = (updatedStory) => {
+    dispatch(updateStory(updatedStory)); // Dispatch action to update story in Redux
+    handleCloseQuilEditor(); // Close QuilEditor after updating
+  };
+
   const handleCreateSession = () => {
     const newErrors = {
       name: name.trim() === "",
@@ -65,6 +73,7 @@ const useCreateSession = () => {
     handleSwap,
     handleCloseQuilEditor,
     handleOpenQuilEditor,
+    handleUpdateStory,
     currentAvatarIndex,
     setName,
     name,

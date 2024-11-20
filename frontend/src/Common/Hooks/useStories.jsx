@@ -14,7 +14,6 @@ const useStories = () => {
 
   const selectedStory = stories.find((story) => story.id === selectedStoryId);
 
-  // Fetch stories only once when status is "idle"
   useEffect(() => {
     if (status === STATUS.IDLE) {
       dispatch(fetchSessionStories());

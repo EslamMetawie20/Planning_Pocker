@@ -25,7 +25,7 @@ function JoinSession() {
   const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
   const [name, setName] = useState("");
   const [sessionId, setSessionId] = useState("");
-  const [sessionIds, setSessionIds] = useState([]);
+  const [sessionIds, setSessionIds] = useState([1,2,3]);
   const [errors, setErrors] = useState({
     name: false,
     sessionId: false,
@@ -54,7 +54,7 @@ function JoinSession() {
     }
   };
 
-  useEffect(() => {
+ /* useEffect(() => {
     getActiveSessionsRequestAsync()
       .then((data) => {
         setSessionIds(data.map((session) => session.id));
@@ -62,7 +62,7 @@ function JoinSession() {
       .catch((error) => {
         console.error("Fehler bei : ", error);
       });
-  }, []);
+  }, []);*/
 
   return (
     <Grid container>
@@ -116,7 +116,7 @@ function JoinSession() {
           >
             <TextField
               fullWidth
-              label="Name"
+              label="name"
               variant="outlined"
               value={name}
               size="small"

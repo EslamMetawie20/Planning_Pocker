@@ -35,7 +35,8 @@ const AppRoutes = () => {
       },
       {
         path: "session",
-        element: sessionId ? <SessionPage /> : <Navigate to="/" replace />,
+        element: <SessionPage />
+       // element: sessionId ? <SessionPage /> : <Navigate to="/" replace />,
       },
     ],
   };

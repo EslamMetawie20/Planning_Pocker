@@ -1,33 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import parse from "html-react-parser";
 import DOMPurify from "dompurify";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
-import { IconButton } from "@mui/material";
+import { IconButton, Dialog } from "@mui/material";
 import { EditRounded } from "@mui/icons-material";
 import useStories from "../../../../Common/Hooks/useStories";
 import { STATUS } from "../../../../Common/Vars/Constants";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
+import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
 
 const StoryView = () => {
-  const { status, selectedStory } = useStories();
+    const { status, selectedStory, updateStory } = useStories();
 
-  const cleanHTML = DOMPurify.sanitize(selectedStory?.content);
-  const parsedContent = parse(cleanHTML);
-  return (
-    <FrameComponent
-      paperSx={{
-        flex: 3,
-      }}
-      title={selectedStory?.title || ""}
-      icon={
-        <IconButton>
-          <EditRounded color="secondary" fontSize="small" />
-        </IconButton>
-      }
-    >
-      {status === STATUS.LOADING ? <LoaderComp /> : parsedContent}
-    </FrameComponent>
-  );
+    const [openEditor, setOpenEditor] = useState(false);
+
+    const handleEditClick = () => {
+        setOpenEditor(true);
+    };
+
+    const handleCloseEditor = () => {
+        setOpenEditor(false);
+    };
+
+    const handleUpdateStory = (updatedStory) => {
+        dispatch(updateStory(updatedStory));
+        handleCloseEditor();
+    };
+
+
+    const cleanHTML = DOMPurify.sanitize(selectedStory?.content);
+    const parsedContent = parse(cleanHTML);
+
+    return (
+        <>
+            <FrameComponent
+                paperSx={{
+                    flex: 3,
+                }}
+                title={selectedStory?.title || ""}
+                icon={
+                    <IconButton onClick={handleEditClick}>
+                        <EditRounded color="secondary" fontSize="small" />
+                    </IconButton>
+                }
+            >
+                {status === STATUS.LOADING ? <LoaderComp /> : parsedContent}
+            </FrameComponent>
+            <Dialog open={openEditor} onClose={handleCloseEditor} maxWidth="md" fullWidth>
+                <QuilEditor
+                    sendData={(title, content) => {
+                        const updatedStory = {
+                            ...selectedStory,
+                            title,
+                            content,
+                        };
+                        handleUpdateStory(updatedStory);
+                    }}
+                    initial={selectedStory}
+                    onSubmit={handleCloseEditor}
+                    buttonLabel="Save"
+                />
+
+
+
+            </Dialog>
+        </>
+    );
 };
 
 export default StoryView;
