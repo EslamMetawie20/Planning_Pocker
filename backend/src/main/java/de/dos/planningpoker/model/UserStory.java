@@ -19,14 +19,10 @@ public class UserStory {
     @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(name = "description")
     private String description;
-
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
-    @JsonBackReference
-    private Session session;
+    @Column(name = "session_id")
+    private String sessionId;
+    @Column(name = "estimation")
     private int estimation;
 }
