@@ -11,4 +11,5 @@ public class User {
     private String id;
     private String name;
     private Role role;
+    private String sessionId;
 }
