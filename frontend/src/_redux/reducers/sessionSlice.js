@@ -1,86 +1,136 @@
-import axios from "../Config/AxiosConfig";
-import WebSocketService from "../Config/WebSocketConfig";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { STATUS } from "../../Common/Vars/Constants";
 import {
-  BACKEND_ACTIONS,
-  FRONTEND_ACTIONS,
-  QUEUE_PATHS,
-  TOPIC_PATHS,
-} from "../Vars/Channels";
+  clearTokenData,
+  getValidSessionFromToken,
+  setTokenData,
+} from "../../Common/Utils/tokenUtils";
+import {
+  createSessionSocket,
+  joinSessionSocket,
+  reconnectSessionSocket,
+} from "../../Common/Service/SessionService";
+import {
+  dispatchSessionData,
+  handleFulfilled,
+  handlePending,
+  handleRejected,
+} from "../../Common/Utils/sessionUtils";
 
-export async function getActiveSessionsRequestAsync() {
-  try {
-    const response = await axios.get(`/api/sessions`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching session IDs:", error);
-    throw error;
-  }
+const initialState = {
+  sessionId: null,
+  token: null,
+  status: STATUS.IDLE,
+  error: null,
+};
+
+// Check if there's a valid session token on app load
+const savedSession = getValidSessionFromToken();
+if (savedSession) {
+  initialState.sessionId = savedSession.sessionId;
+  initialState.token = savedSession.token;
 }
 
-export async function createSessionRequestAsync(request) {
-  try {
-    const response = await axios.post(`/api/sessions`, request);
-    return response.data;
-  } catch (error) {
-    console.error("Error creating session:", error);
-    throw error;
+export const createSession = createAsyncThunk(
+  "session/createSession",
+  async (request, { dispatch, rejectWithValue }) => {
+    return new Promise((resolve) => {
+      createSessionSocket(
+        request,
+        (data) => {
+          console.log(data);
+          const { sessionId, token } = data;
+          setTokenData(token);
+          resolve({ sessionId, token });
+        },
+        (error) => {
+          dispatch(clearSession());
+          rejectWithValue(error);
+        }
+      );
+    });
   }
-}
+);
 
-export const createSessionSocket = (request, onSuccess, onError) => {
-  WebSocketService.connect(() => {
-    // Subscribe to receive the response and immediately unsubscribe after receiving it
-    const subscription = WebSocketService.subscribe(
-      TOPIC_PATHS.SESSION_CREATED,
-      (response) => {
-        console.log(response);
-        if (response.sessionId) {
-          onSuccess(response);
-        } else if (response.error) {
-          onError(response.error || "Failed to create session");
+export const joinSession = createAsyncThunk(
+  "session/joinSession",
+  async (request, { dispatch, rejectWithValue }) => {
+    return new Promise((resolve) => {
+      joinSessionSocket(
+        request,
+        (data) => {
+          const { sessionId, token } = data;
+          setTokenData(token);
+          resolve({ sessionId, token });
+        },
+        (error) => {
+          dispatch(clearSession());
+          rejectWithValue(error);
         }
-        subscription.unsubscribe();
-      }
-    );
+      );
+    });
+  }
+);
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.CREATE_SESSION, request);
-  }, onError);
-};
+export const leaveSession = createAsyncThunk(
+  "session/leaveSession",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      WebSocketService.close();
+      dispatch(clearSession());
+      return true;
+    } catch (error) {
+      return rejectWithValue("Failed to leave the session.");
+    }
+  }
+);
 
-export const joinSessionSocket = (request, onSuccess, onError) => {
-  WebSocketService.connect(() => {
-    const subscription = WebSocketService.subscribe(
-      QUEUE_PATHS.RECEIVE_MESSAGE,
-      (response) => {
-        if (response.action === FRONTEND_ACTIONS.SESSION_JOINED) {
-          onSuccess(response.data);
-        } else if (response.action === FRONTEND_ACTIONS.SESSION_JOIN_FAILED) {
-          onError(response.error || "Failed to join session");
+export const connectSession = createAsyncThunk(
+  "session/connectSession",
+  async (token, { dispatch, rejectWithValue }) => {
+    return new Promise((resolve) => {
+      reconnectSessionSocket(
+        token,
+        (data) => {
+          const { userStories, members } = data;
+          dispatchSessionData(dispatch, userStories, members);
+          resolve();
+        },
+        (error) => {
+          dispatch(clearSession());
+          rejectWithValue(error);
         }
-        subscription.unsubscribe();
-      }
-    );
+      );
+    });
+  }
+);
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.JOIN_SESSION, request);
-  }, onError);
-};
+const thunkReducers = [
+  createSession,
+  joinSession,
+  // leaveSession,
+  // connectSession,
+];
 
-export const reconnectSessionSocket = (token, onSuccess, onError) => {
-  WebSocketService.connect(() => {
-    const subscription = WebSocketService.subscribe(
-      QUEUE_PATHS.RECEIVE_MESSAGE,
-      (response) => {
-        if (response.action === FRONTEND_ACTIONS.SESSION_RECONNECTED) {
-          onSuccess(response.data);
-        } else if (
-          response.action === FRONTEND_ACTIONS.SESSION_RECONNECT_FAILED
-        ) {
-          onError(response.error || "Failed to reconnect session");
-        }
-        subscription.unsubscribe();
-      }
-    );
+const sessionSlice = createSlice({
+  name: "session",
+  initialState,
+  reducers: {
+    clearSession(state) {
+      state.sessionId = null;
+      state.token = null;
+      clearTokenData();
+    },
+  },
+  extraReducers: (builder) => {
+    thunkReducers.forEach((thunk) => {
+      builder
+        .addCase(thunk.pending, handlePending)
+        .addCase(thunk.fulfilled, handleFulfilled)
+        .addCase(thunk.rejected, handleRejected);
+    });
+  },
+});
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.RECONNECT_SESSION, token);
-  }, onError);
-};
+export const { clearSession } = sessionSlice.actions;
+export default sessionSlice.reducer;
