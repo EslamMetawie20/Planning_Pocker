@@ -28,12 +28,12 @@ const useWebSocketListener = () => {
         () => {
           setupMemberListeners();
           dispatch(connectSession(token));
-         // navigate("/session");
+          navigate("/session");
         },
         (error) => {
           console.error("STOMP connection error:", error);
           clearTokenData();
-          //navigate("/");
+          navigate("/");
         }
       );
     }
