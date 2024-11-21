@@ -8,9 +8,12 @@ import useStories from "../../../../Common/Hooks/useStories";
 import { STATUS } from "../../../../Common/Vars/Constants";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
+import {useDispatch} from "react-redux";
+import {updateStory} from "../../../../_redux/reducers/storySlice.js";
 
 const StoryView = () => {
-    const { status, selectedStory, updateStory } = useStories();
+    const dispatch=useDispatch();
+    const { status, selectedStory } = useStories();
 
     const [openEditor, setOpenEditor] = useState(false);
 

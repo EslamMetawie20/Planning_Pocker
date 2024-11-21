@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import GoogleAvatars from "../Vars/GoogleAvatars";
-import { createSession, updateStory } from "../../_redux/reducers/sessionSlice";
+import { createSession} from "../../_redux/reducers/sessionSlice";
 import { useDispatch } from "react-redux";
 
 const useCreateSession = () => {
@@ -28,7 +28,6 @@ const useCreateSession = () => {
     );
   };
 
-  // Update initialStory data when data is edited in the QuilEditor
   const getQuillData = useCallback((title, content) => {
     setInitialStory({ title, content });
   }, []);
@@ -41,11 +40,6 @@ const useCreateSession = () => {
     }
   }, [initialStory]);
 
-  // Function to handle story update
-  const handleUpdateStory = (updatedStory) => {
-    dispatch(updateStory(updatedStory)); // Dispatch action to update story in Redux
-    handleCloseQuilEditor(); // Close QuilEditor after updating
-  };
 
   const handleCreateSession = () => {
     const newErrors = {
@@ -73,7 +67,6 @@ const useCreateSession = () => {
     handleSwap,
     handleCloseQuilEditor,
     handleOpenQuilEditor,
-    handleUpdateStory,
     currentAvatarIndex,
     setName,
     name,

@@ -20,7 +20,6 @@ const useStories = () => {
     }
   }, [status, dispatch]);
 
-  // Function to select a story
   const handleSelectStory = (storyId) => {
     dispatch(selectStory(storyId));
   };

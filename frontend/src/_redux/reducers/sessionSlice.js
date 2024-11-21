@@ -118,22 +118,6 @@ const sessionSlice = createSlice({
             state.token = null;
             clearTokenData();
         },
-        updateStory(state, action) {
-            const updatedStory = action.payload;
-            const storyIndex = state.stories.findIndex(
-                (story) => story.id === updatedStory.id
-            );
-            if (storyIndex !== -1) {
-                state.stories[storyIndex] = {
-                    ...state.stories[storyIndex],
-                    ...updatedStory,
-                };
-            }
-        },
-        addStory(state, action) {
-            const newStory = action.payload;
-            state.stories.push(newStory);
-        },
     },
     extraReducers: (builder) => {
         thunkReducers.forEach((thunk) => {
@@ -145,5 +129,5 @@ const sessionSlice = createSlice({
     },
 });
 
-export const { clearSession, updateStory, addStory } = sessionSlice.actions;
+export const { clearSession } = sessionSlice.actions;
 export default sessionSlice.reducer;

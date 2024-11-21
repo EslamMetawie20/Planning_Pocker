@@ -103,7 +103,6 @@ function QuilEditor({
                         variant="h6"
                         gutterBottom
                         sx={{
-                            fontFamily: "Source Sans Pro, Verdana",
                             fontSize: { xs: "1.2rem", sm: "1.5rem" },
                         }}
                     >
