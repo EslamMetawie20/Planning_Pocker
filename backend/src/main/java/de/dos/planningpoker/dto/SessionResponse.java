@@ -10,6 +10,8 @@ import java.util.List;
 @Builder
 public class SessionResponse {
     private String sessionId;
+    private String scrumMasterId;
+    private String memberId;
     private String scrumMasterName;
     private List<User> participants;
     private String joinUrl;

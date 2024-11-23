@@ -20,4 +20,10 @@ public class SessionState {
         this.scrumMaster = session.getScrumMasterId();
         this.participants = new ArrayList<>(session.getUsers().values());
     }
+
+    public SessionState() {
+        this.sessionId = null;
+        this.scrumMaster = null;
+        this.participants = new ArrayList<>();
+    }
 }

@@ -4,6 +4,7 @@ import de.dos.planningpoker.model.Session;
 import de.dos.planningpoker.repository.SessionRepository;
 import de.dos.planningpoker.service.SessionService;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class SessionServiceImpl implements SessionService {
@@ -19,4 +20,8 @@ public class SessionServiceImpl implements SessionService {
 
     }
 
+    @Override
+    public List<Session> getAll(){
+        return sessionRepository.findAll();
+    }
 }

@@ -1,9 +1,8 @@
 package de.dos.planningpoker.dto;
-
 import lombok.Data;
 
 @Data
-public class LeaveRequest {
+public class ReconnectRequest {
     private String sessionId;
     String userId;
 }

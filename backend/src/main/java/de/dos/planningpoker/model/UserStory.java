@@ -21,8 +21,9 @@ public class UserStory {
 
     @Column(name = "description")
     private String description;
-    @Column(name = "session_id")
-    private String sessionId;
+    @ManyToOne
+    @JoinColumn(name = "session_id")
+    private Session session;
     @Column(name = "estimation")
     private int estimation;
 }
