@@ -4,3 +4,8 @@ export const STATUS = {
   SUCCEEDED: "succeeded",
   FAILED: "failed",
 };
+
+export const ROLES = {
+  SCRUM_MASTER: "SCRUM_MASTER",
+  TEAM_MEMBER: "TEAM_MEMBER",
+};

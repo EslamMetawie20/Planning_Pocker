@@ -16,7 +16,7 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import { ChevronRight } from "@mui/icons-material";
 import GoogleAvatars from "../../Common/Vars/GoogleAvatars";
 import BoxHeader from "../../Components/Frames/BoxHeader";
-import { getActiveSessionsRequestAsync } from "../../Common/Service/SessionService";
+import { getSessionsSocket } from "../../Common/Service/SessionService";
 import { useDispatch } from "react-redux";
 import { joinSession } from "../../_redux/reducers/sessionSlice";
 
@@ -25,7 +25,7 @@ function JoinSession() {
   const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
   const [name, setName] = useState("");
   const [sessionId, setSessionId] = useState("");
-  const [sessionIds, setSessionIds] = useState([1,2,3]);
+  const [sessionIds, setSessionIds] = useState([]);
   const [errors, setErrors] = useState({
     name: false,
     sessionId: false,
@@ -47,22 +47,23 @@ function JoinSession() {
     if (!newErrors.name && !newErrors.sessionId) {
       const request = {
         sessionId,
-        name,
+        userName: name,
         avatarIndex: currentAvatarIndex,
       };
       dispatch(joinSession(request));
     }
   };
 
- /* useEffect(() => {
-    getActiveSessionsRequestAsync()
-      .then((data) => {
-        setSessionIds(data.map((session) => session.id));
-      })
-      .catch((error) => {
+  useEffect(() => {
+    getSessionsSocket(
+      (data) => {
+        setSessionIds(data);
+      },
+      (error) => {
         console.error("Fehler bei : ", error);
-      });
-  }, []);*/
+      }
+    );
+  }, []);
 
   return (
     <Grid container>

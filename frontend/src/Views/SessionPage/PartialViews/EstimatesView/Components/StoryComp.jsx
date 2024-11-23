@@ -7,6 +7,7 @@ const StoryComp = ({
   title = "Example Story Title",
   selected = false,
   estimate = 0,
+  disabled = false,
   onClick = () => {},
 }) => {
   const theme = useTheme();
@@ -23,11 +24,11 @@ const StoryComp = ({
       direction={"row"}
       justifyContent={"space-between"}
       alignItems={"center"}
-      onClick={onClick}
+      onClick={!disabled ? onClick : null}
       sx={{
-        cursor: "pointer",
+        cursor: !disabled && "pointer",
         transition: "all 0.2s ease",
-        "&:hover": {
+        "&:hover": !disabled && {
           backgroundColor: theme.palette.action.hover,
           transform: "scale(1.02)",
         },
@@ -67,6 +68,7 @@ StoryComp.prototypes = {
   title: PropTypes.string.isRequired,
   selected: PropTypes.bool,
   estimate: PropTypes.number,
+  disabled: PropTypes.bool,
   onClick: PropTypes.func,
 };
 

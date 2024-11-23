@@ -9,6 +9,7 @@ import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
 import useWebSocketListener from "./Common/Hooks/useWebSocketListener.jsx";
 import "./App.css";
+import { getTokenData } from "./Common/Utils/tokenUtils.js";
 
 const App = () => {
   useWebSocketListener();
@@ -35,7 +36,7 @@ const AppRoutes = () => {
       },
       {
         path: "session",
-        element: sessionId ? <SessionPage /> : <Navigate to="/" replace />,
+        element: <SessionPage />,
       },
     ],
   };

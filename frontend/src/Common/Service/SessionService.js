@@ -3,7 +3,6 @@ import WebSocketService from "../Config/WebSocketConfig";
 import {
   BACKEND_ACTIONS,
   FRONTEND_ACTIONS,
-  QUEUE_PATHS,
   TOPIC_PATHS,
 } from "../Vars/Channels";
 
@@ -27,60 +26,130 @@ export async function createSessionRequestAsync(request) {
   }
 }
 
-export const createSessionSocket = (request, onSuccess, onError) => {
+export const getSessionsSocket = (onSuccess, onError) => {
   WebSocketService.connect(() => {
     // Subscribe to receive the response and immediately unsubscribe after receiving it
+    WebSocketService.subscribe(TOPIC_PATHS.SESSION_IDS_GET(), (response) => {
+      if (response) {
+        onSuccess(response);
+      } else if (response.error) {
+        onError(response.error || "Failed to get session ids");
+      }
+    });
+
+    WebSocketService.sendMessage(BACKEND_ACTIONS.GET_SESSION_IDS());
+  }, onError);
+};
+
+export const createSessionSocket = (request, onSuccess, onCreated, onError) => {
+  WebSocketService.connect(() => {
+    // Subscribe to SESSION_CREATED to get the sessionId
     const subscription = WebSocketService.subscribe(
-      TOPIC_PATHS.SESSION_CREATED,
+      TOPIC_PATHS.SESSION_CREATED(),
       (response) => {
-        console.log(response);
         if (response.sessionId) {
-          onSuccess(response);
+          onCreated(response);
+
+          // Subscribe to session updates once sessionId is available
+          WebSocketService.subscribe(
+            TOPIC_PATHS.SESSION_UPDATES(response.sessionId),
+            (updateResponse) => {
+              if (updateResponse) {
+                onSuccess(updateResponse);
+              } else if (updateResponse.error) {
+                onError(updateResponse.error || "Failed to update session");
+              }
+            }
+          );
+
+          subscription.unsubscribe();
         } else if (response.error) {
           onError(response.error || "Failed to create session");
+          subscription.unsubscribe();
         }
-        subscription.unsubscribe();
       }
     );
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.CREATE_SESSION, request);
+    WebSocketService.sendMessage(BACKEND_ACTIONS.CREATE_SESSION(), request);
   }, onError);
 };
 
-export const joinSessionSocket = (request, onSuccess, onError) => {
+export const joinSessionSocket = (request, onSuccess, onJoined, onError) => {
   WebSocketService.connect(() => {
-    const subscription = WebSocketService.subscribe(
-      QUEUE_PATHS.RECEIVE_MESSAGE,
+    WebSocketService.subscribe(
+      TOPIC_PATHS.SESSION_UPDATES(request?.sessionId),
       (response) => {
-        if (response.action === FRONTEND_ACTIONS.SESSION_JOINED) {
-          onSuccess(response.data);
-        } else if (response.action === FRONTEND_ACTIONS.SESSION_JOIN_FAILED) {
+        if (response) {
+          onSuccess(response);
+        } else if (response.error) {
           onError(response.error || "Failed to join session");
         }
-        subscription.unsubscribe();
       }
     );
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.JOIN_SESSION, request);
+    const joinSubscription = WebSocketService.subscribe(
+      TOPIC_PATHS.SESSION_JOINED(),
+      (response) => {
+        if (response) {
+          onJoined(response);
+        } else if (response.error) {
+          onError(response.error || "Failed to join session");
+        }
+        joinSubscription.unsubscribe();
+      }
+    );
+
+    WebSocketService.sendMessage(BACKEND_ACTIONS.JOIN_SESSION(), request);
   }, onError);
 };
 
-export const reconnectSessionSocket = (token, onSuccess, onError) => {
+export const reconnectSessionSocket = (
+  request,
+  onSuccess,
+  onConnect,
+  onError
+) => {
   WebSocketService.connect(() => {
+    // Subscribe to the reconnection topic
     const subscription = WebSocketService.subscribe(
-      QUEUE_PATHS.RECEIVE_MESSAGE,
+      TOPIC_PATHS.SESSION_RECONNECTED(),
       (response) => {
-        if (response.action === FRONTEND_ACTIONS.SESSION_RECONNECTED) {
-          onSuccess(response.data);
-        } else if (
-          response.action === FRONTEND_ACTIONS.SESSION_RECONNECT_FAILED
-        ) {
-          onError(response.error || "Failed to reconnect session");
+        if (response.sessionId) {
+          onConnect(response);
+
+          // Subscribe to session updates after reconnection
+          WebSocketService.subscribe(
+            TOPIC_PATHS.SESSION_UPDATES(response.sessionId),
+            (updateResponse) => {
+              if (updateResponse) {
+                onSuccess(updateResponse);
+              } else if (updateResponse.error) {
+                onError(updateResponse.error || "Failed to update session");
+              }
+            }
+          );
+
+          subscription.unsubscribe();
+        } else if (response.error) {
+          onError(response.error || "Failed to connect to session");
+          subscription.unsubscribe();
         }
-        subscription.unsubscribe();
       }
     );
 
-    WebSocketService.sendMessage(BACKEND_ACTIONS.RECONNECT_SESSION, token);
+    // Send the reconnect request
+    WebSocketService.sendMessage(BACKEND_ACTIONS.RECONNECT_SESSION(), request);
+  }, onError);
+};
+
+export const leaveSessionSocket = (request, onError) => {
+  WebSocketService.connect(() => {
+    WebSocketService.sendMessage(BACKEND_ACTIONS.LEAVE_SESSION(), request);
+  }, onError);
+};
+
+export const endSessionSocket = (request, onError) => {
+  WebSocketService.connect(() => {
+    WebSocketService.sendMessage(BACKEND_ACTIONS.END_SESSION(), request);
   }, onError);
 };

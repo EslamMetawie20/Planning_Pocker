@@ -1,6 +1,15 @@
-import { addMember } from "../../_redux/reducers/memberSlice";
+import { setMembers } from "../../_redux/reducers/memberSlice";
+import { clearSession } from "../../_redux/reducers/sessionSlice";
 import { addStory } from "../../_redux/reducers/storySlice";
 import { STATUS } from "../Vars/Constants";
+
+function formatRoleString(role) {
+  return role
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export const dispatchSessionData = (dispatch, userStories, members) => {
   // Dispatch addStory action for each story
@@ -15,18 +24,28 @@ export const dispatchSessionData = (dispatch, userStories, members) => {
     )
   );
 
+  if (members === null) members = [];
+
   // Dispatch addMember action for each member
-  members.forEach((member) =>
-    dispatch(
-      addMember({
-        id: member?.id,
-        name: member?.name,
-        avatarIndex: member?.avatarIndex,
-        lastVote: 0,
-        voted: false,
-      })
-    )
-  );
+  const mappedMembers = members.map((member) => ({
+    id: member?.id,
+    name: member?.name,
+    avatarIndex: member?.avatarIndex ?? 0,
+    lastVote: 0,
+    voted: false,
+    role: formatRoleString(member?.role),
+  }));
+
+  dispatch(setMembers(mappedMembers));
+};
+
+export const handleSessionUpdates = (dispatch, data) => {
+  const { sessionId, userStories, participants } = data;
+  if (sessionId == null || participants == null) {
+    dispatch(clearSession());
+  } else {
+    dispatchSessionData(dispatch, [], participants);
+  }
 };
 
 // Handler for pending state

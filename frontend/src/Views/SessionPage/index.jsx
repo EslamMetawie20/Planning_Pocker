@@ -4,8 +4,14 @@ import BoxHeader from "../../Components/Frames/BoxHeader";
 import MembersView from "./PartialViews/MembersView/index";
 import StoryView from "./PartialViews/StoryView/index";
 import EstimatesView from "./PartialViews/EstimatesView/index";
+import { useSelector } from "react-redux";
 
 const SessionPage = () => {
+  const sessionId = useSelector((state) => state.session.sessionId);
+  if (!sessionId) {
+    return null;
+  }
+
   return (
     <Stack
       spacing={1}

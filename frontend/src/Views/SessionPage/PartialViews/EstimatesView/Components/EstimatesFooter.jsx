@@ -3,7 +3,11 @@ import { Button, Stack, Typography } from "@mui/material";
 import React from "react";
 import PropTypes from "prop-types";
 
-const EstimatesFooter = ({ sessionId = "a23389cc" }) => {
+const EstimatesFooter = ({
+  sessionId = "a23389cc",
+  buttonLabel = "End session",
+  onClick = () => {},
+}) => {
   return (
     <Stack justifyContent={"flex-start"} justifySelf={"flex-end"}>
       <Typography variant="caption" fontSize={"0.6rem"}>
@@ -14,8 +18,9 @@ const EstimatesFooter = ({ sessionId = "a23389cc" }) => {
         size="small"
         color="error"
         startIcon={<PowerSettingsNew />}
+        onClick={onClick}
       >
-        End session
+        {buttonLabel}
       </Button>
     </Stack>
   );
@@ -23,5 +28,7 @@ const EstimatesFooter = ({ sessionId = "a23389cc" }) => {
 
 EstimatesFooter.propTypes = {
   sessionId: PropTypes.string.isRequired,
+  buttonLabel: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
 };
 export default EstimatesFooter;
