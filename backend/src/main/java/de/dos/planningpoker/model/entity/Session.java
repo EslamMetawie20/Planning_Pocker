@@ -1,8 +1,7 @@
-package de.dos.planningpoker.model;
+package de.dos.planningpoker.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,11 +17,14 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "session_id")
     private Long id;
-    @NotNull(message = "Position is required")
-    private String position;
+
+    @Column(nullable = false, unique = true)
+    private String sessionCode;  // UUID für Frontend-Referenz
+
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<UserStory> userStories = new ArrayList<>();
 
-
+    @Column(nullable = false)
+    private boolean active = true;
 }
