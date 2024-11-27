@@ -3,8 +3,11 @@ package de.dos.planningpoker.controller;
 import de.dos.planningpoker.dto.*;
 import de.dos.planningpoker.enumeration.NotificationType;
 import de.dos.planningpoker.enumeration.Role;
-import de.dos.planningpoker.model.PlanningPokerSession;
-import de.dos.planningpoker.model.User;
+import de.dos.planningpoker.model.entity.Session;
+import de.dos.planningpoker.model.websocket.PlanningPokerSession;
+import de.dos.planningpoker.model.websocket.User;
+import de.dos.planningpoker.repository.SessionRepository;
+import de.dos.planningpoker.repository.UserStoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -20,7 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Controller
 @RequiredArgsConstructor
 public class PlanningPokerController {
-
+    private final SessionRepository sessionRepository;
+    private final UserStoryRepository userStoryRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
     // Store multiple sessions by sessionId
@@ -36,32 +40,37 @@ public class PlanningPokerController {
     @SendTo("/topic/session/created")
     public SessionResponse createSession(CreateSessionRequest createSessionRequest) {
         // Generate session ID
-        String sessionId = UUID.randomUUID().toString().substring(0, 8);
+        String sessionCode = UUID.randomUUID().toString().substring(0, 8);
 
         // Create Scrum Master
         User scrumMaster = new User(
                 UUID.randomUUID().toString(),
                 createSessionRequest.getUserName(),
                 Role.SCRUM_MASTER,
-                sessionId
+                sessionCode
         );
+        // Create session entity
+        Session sessionEntity = new Session();
+        sessionEntity.setSessionCode(sessionCode);
+        sessionEntity.setActive(true);
+         sessionRepository.save(sessionEntity);  // Speichern in DB
 
         // Create new session
-        PlanningPokerSession session = new PlanningPokerSession(sessionId);
+        PlanningPokerSession session = new PlanningPokerSession(sessionCode);
         session.addUser(scrumMaster);
 
         // Add session to the map
-        sessions.put(sessionId, session);
+        sessions.put(sessionCode, session);
         sendSessionIds();
 
         // Return session details
         return SessionResponse.builder()
-                .sessionId(sessionId)
+                .sessionId(sessionCode)
                 .participants(new ArrayList<>(session.getUsers().values()))
                 .memberId(scrumMaster.getId())
                 .scrumMasterId(scrumMaster.getId())
                 .scrumMasterName(scrumMaster.getName())
-                .joinUrl("/join/" + sessionId)
+                .joinUrl("/join/" + sessionCode)
                 .build();
     }
 

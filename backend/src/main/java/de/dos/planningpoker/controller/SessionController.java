@@ -1,5 +1,5 @@
 package de.dos.planningpoker.controller;
-import de.dos.planningpoker.model.Session;
+import de.dos.planningpoker.model.entity.Session;
 import de.dos.planningpoker.service.SessionService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
