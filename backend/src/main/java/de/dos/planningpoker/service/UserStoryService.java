@@ -1,6 +1,6 @@
 package de.dos.planningpoker.service;
 
-import de.dos.planningpoker.model.UserStory;
+import de.dos.planningpoker.model.entity.UserStory;
 
 import java.util.List;
 

@@ -1,10 +1,11 @@
-package de.dos.planningpoker.model;
+package de.dos.planningpoker.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+
 
 
 @Getter
@@ -21,9 +22,14 @@ public class UserStory {
 
     @Column(name = "description")
     private String description;
+
     @ManyToOne
     @JoinColumn(name = "session_id")
+    @JsonBackReference
     private Session session;
+
     @Column(name = "estimation")
-    private int estimation;
+    private Integer estimation;
+
+
 }

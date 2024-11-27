@@ -1,6 +1,6 @@
 package de.dos.planningpoker.service.impl;
 
-import de.dos.planningpoker.model.Session;
+import de.dos.planningpoker.model.entity.Session;
 import de.dos.planningpoker.repository.SessionRepository;
 import de.dos.planningpoker.service.SessionService;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package de.dos.planningpoker.dto;
 
-import de.dos.planningpoker.model.PlanningPokerSession;
-import de.dos.planningpoker.model.User;
+import de.dos.planningpoker.model.websocket.PlanningPokerSession;
+import de.dos.planningpoker.model.websocket.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

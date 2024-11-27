@@ -1,8 +1,7 @@
-package de.dos.planningpoker.model;
+package de.dos.planningpoker.model.websocket;
 
 import de.dos.planningpoker.enumeration.Role;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 @Data

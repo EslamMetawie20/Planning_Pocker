@@ -1,6 +1,6 @@
 package de.dos.planningpoker.controller;
 
-import de.dos.planningpoker.model.UserStory;
+import de.dos.planningpoker.model.entity.UserStory;
 import de.dos.planningpoker.service.UserStoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;

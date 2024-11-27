@@ -1,7 +1,6 @@
 package de.dos.planningpoker.service.impl;
 
-import de.dos.planningpoker.model.PlanningPokerSession;
-import de.dos.planningpoker.model.UserStory;
+import de.dos.planningpoker.model.entity.UserStory;
 import de.dos.planningpoker.repository.UserStoryRepository;
 import de.dos.planningpoker.service.UserStoryService;
 import jakarta.persistence.EntityNotFoundException;
