@@ -32,7 +32,7 @@ const AppRoutes = () => {
     children: [
       {
         path: "",
-        element: <MainSession />,
+        element: <SessionPage />,
       },
       {
         path: "session",

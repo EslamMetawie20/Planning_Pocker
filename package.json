@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "notistack": "^3.0.1",
     "prop-types": "^15.8.1"
   }
 }
