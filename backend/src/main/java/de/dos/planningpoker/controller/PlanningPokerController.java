@@ -162,10 +162,7 @@ public class PlanningPokerController {
             return;
         }
 
-        // if (!session.getUsers().isEmpty()) {
-        //     sendErrorToUser(request.getUserId(), "Some team members are still in the session");
-        //     return;
-        // }
+
 
         session.setActive(false);
         sessions.remove(request.getSessionId()); // Remove the session from the map
