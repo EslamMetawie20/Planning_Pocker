@@ -4,6 +4,7 @@ import de.dos.planningpoker.dto.*;
 import de.dos.planningpoker.enumeration.NotificationType;
 import de.dos.planningpoker.enumeration.Role;
 import de.dos.planningpoker.model.entity.Session;
+import de.dos.planningpoker.model.entity.UserStory;
 import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.User;
 import de.dos.planningpoker.repository.SessionRepository;
@@ -87,7 +88,7 @@ public class PlanningPokerController {
             return null;
         }
 
-        // Create new User
+        // Create new User,hier wird auch uuid für user angewendet
         User user = new User(
                 UUID.randomUUID().toString(),
                 joinRequest.getUserName(),
@@ -197,4 +198,52 @@ public class PlanningPokerController {
         
         messagingTemplate.convertAndSend("/topic/session/ids", activeSessionIds);
     }
+
+    @MessageMapping("/poker/userstory/select")
+    public void selectUserStory(SelectUserStoryRequest request) {
+        // Session und User validieren
+        PlanningPokerSession session =sessions.get(request.getSessionId());
+        if (session == null || !session.isActive()) {
+            sendErrorToUser(request.getUserCode(), "Session nicht gefunden oder inaktiv");
+            return;
+        }
+
+        // Prüfen ob der User Scrum Master ist
+        User user = session.getUsers().get(request.getUserCode());
+        if (user == null || !user.getRole().equals(Role.SCRUM_MASTER)) {
+            sendErrorToUser(request.getUserCode(), "Nur der Scrum Master kann User Stories auswählen");
+            return;
+        }
+
+        try {
+            // User Story aus der Datenbank holen und als ausgewählt markieren
+            UserStory userStory = userStoryRepository.findByUserStoryCode(request.getUserStoryCode())
+                    .orElseThrow(() -> new RuntimeException("User Story nicht gefunden"));
+
+            // Aktuelle User Story in der Session setzen
+            session.setCurrentUserStory(userStory);
+
+            // Alle Session-Teilnehmer über die neue User Story informieren
+            UserStoryNotification notification = UserStoryNotification.builder()
+                    .userStoryCode(userStory.getUserStoryCode())
+                    .title(userStory.getTitle())
+                    .description(userStory.getDescription())
+                    .build();
+
+            // Benachrichtigung an alle Teilnehmer senden
+            messagingTemplate.convertAndSend(
+                    "/topic/session/" + session.getId() + "/userstory",
+                    notification
+            );
+
+            // Session-Status aktualisieren
+            sendSessionState(session.getId());
+
+        } catch (Exception e) {
+            sendErrorToUser(request.getUserStoryCode(), "Fehler beim Auswählen der User Story: " + e.getMessage());
+        }
+    }
+
+
+
 }
