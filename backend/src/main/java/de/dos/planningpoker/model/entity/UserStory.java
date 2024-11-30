@@ -16,6 +16,8 @@ public class UserStory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name="userStoryCode")
+    private String userStoryCode;
 
     @Column(nullable = false)
     private String title;
