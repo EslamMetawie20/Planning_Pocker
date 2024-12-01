@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateSessionRequest {
     private String userName;
+    private String initialStoryTitle;
+    private String initialStoryDescription;
 }

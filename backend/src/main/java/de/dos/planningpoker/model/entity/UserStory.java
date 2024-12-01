@@ -8,24 +8,22 @@ import lombok.Setter;
 
 
 
+@Entity
 @Getter
 @Setter
-@Entity
-@Table(name = "userstory")
+@Table(name = "user_story")
 public class UserStory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "story_id")
     private Long id;
-    @Column(name="userStoryCode")
-    private String userStoryCode;
 
     @Column(nullable = false)
     private String title;
 
-    @Column(name = "description")
     private String description;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id")
     @JsonBackReference
     private Session session;

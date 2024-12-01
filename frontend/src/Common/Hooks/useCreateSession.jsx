@@ -48,20 +48,16 @@ const useCreateSession = () => {
     setErrors(newErrors);
 
     if (!newErrors.name) {
-      // const request = {
-      //   name,
-      //   initialStory: {
-      //     title: initialStory?.title,
-      //     description: initialStory?.content,
-      //   },
-      //   avatarIndex: currentAvatarIndex,
-      // };
-
-      const request = { userName: name };
+      const request = {
+        userName: name,  // Der API-Name scheint "userName" zu sein
+        initialStoryTitle: initialStory?.title,
+        initialStoryDescription: initialStory?.content,
+        avatarIndex: currentAvatarIndex,
+      };
+      console.log('Creating session with:', request);
       dispatch(createSession(request));
     }
   };
-
   return {
     handleCreateSession,
     handleSwap,
