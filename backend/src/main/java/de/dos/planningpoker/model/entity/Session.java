@@ -27,4 +27,11 @@ public class Session {
 
     @Column(nullable = false)
     private boolean active = true;
+    public void addUserStory(UserStory story) {
+        if (userStories == null) {
+            userStories = new ArrayList<>();
+        }
+        userStories.add(story);
+        story.setSession(this);
+    }
 }

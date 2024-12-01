@@ -15,26 +15,23 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 @RequiredArgsConstructor
 public class PlanningPokerSession {
-    private String id;
+    private final String id;         // sessionCode
+    private Long databaseId;         // neue Feld für DB-Referenz
     private String scrumMasterId;
-    // Using ConcurrentHashMap for thread-safe operations
+    private String scrumMasterName;
     private Map<String, User> users = new ConcurrentHashMap<>();
-    private boolean active;
+    private boolean active = true;   // direkt initialisieren
 
-    // Neue Felder für User Stories
+    // UserStory Management
     private List<UserStory> userStories = new ArrayList<>();
     private UserStory currentUserStory;
 
-    public PlanningPokerSession(String id) {
-        this.id = id;
-        this.active = true;
-    }
+    // Constructor können wir vereinfachen, da @RequiredArgsConstructor das handled
+    // und active bereits initialisiert ist
 
-    // add a user to the session
     public void addUser(User user) {
-        // if user is Scrum Master, verify no existing Scrum Master
-        if(user.getRole() == Role.SCRUM_MASTER){
-            if(scrumMasterId != null && !user.getId().equals(scrumMasterId)){
+        if (user.getRole() == Role.SCRUM_MASTER) {
+            if (scrumMasterId != null && !user.getId().equals(scrumMasterId)) {
                 throw new IllegalStateException("Session already has a Scrum Master");
             }
             this.scrumMasterId = user.getId();
@@ -43,15 +40,15 @@ public class PlanningPokerSession {
     }
 
     public void removeUser(String id) {
+        if (id.equals(scrumMasterId)) {
+            scrumMasterId = null;    // Scrum Master ID zurücksetzen wenn der Scrum Master geht
+        }
         users.remove(id);
     }
 
-    // Neue Methoden für User Story Management
+    // Vereinfachte UserStory Methoden
     public void setCurrentUserStory(UserStory userStory) {
-        // Prüfen ob die User Story in der Liste existiert
-        if (!userStories.contains(userStory)) {
-            userStories.add(userStory);
-        }
+        addUserStory(userStory);     // Dies stellt sicher dass die Story in der Liste ist
         this.currentUserStory = userStory;
     }
 
@@ -61,18 +58,13 @@ public class PlanningPokerSession {
         }
     }
 
-    public void removeUserStory(UserStory userStory) {
-        userStories.remove(userStory);
-        if (currentUserStory != null && currentUserStory.equals(userStory)) {
-            currentUserStory = null;
-        }
+    // Getter für databaseId
+    public Long getDatabaseId() {
+        return databaseId;
     }
 
-    public UserStory getCurrentUserStory() {
-        return currentUserStory;
-    }
-
-    public List<UserStory> getUserStories() {
-        return new ArrayList<>(userStories); // Rückgabe einer Kopie für Thread-Sicherheit
+    // Setter für databaseId
+    public void setDatabaseId(Long databaseId) {
+        this.databaseId = databaseId;
     }
 }

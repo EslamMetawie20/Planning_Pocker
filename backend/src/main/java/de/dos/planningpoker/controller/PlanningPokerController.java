@@ -9,7 +9,9 @@ import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.User;
 import de.dos.planningpoker.repository.SessionRepository;
 import de.dos.planningpoker.repository.UserStoryRepository;
+import de.dos.planningpoker.service.impl.SessionServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -27,89 +29,53 @@ public class PlanningPokerController {
     private final SessionRepository sessionRepository;
     private final UserStoryRepository userStoryRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final SessionServiceImpl sessionService;
+
+
 
     // Store multiple sessions by sessionId
     private final Map<String, PlanningPokerSession> sessions = new ConcurrentHashMap<>();
 
 
-    @MessageMapping("/poker/session/ids/get")
-    public void getSessionIds() {
-        sendSessionIds();
-    }
+
 
     @MessageMapping("/poker/create")
     @SendTo("/topic/session/created")
     public SessionResponse createSession(CreateSessionRequest createSessionRequest) {
-        // Generate session ID
-        String sessionCode = UUID.randomUUID().toString().substring(0, 8);
+        System.out.println("Received request: " + createSessionRequest); // LOG hinzugefügt
+        SessionResponse response = sessionService.createSession(createSessionRequest);
 
-        // Create Scrum Master
-        User scrumMaster = new User(
-                UUID.randomUUID().toString(),
-                createSessionRequest.getUserName(),
-                Role.SCRUM_MASTER,
-                sessionCode
-        );
-        // Create session entity
-        Session sessionEntity = new Session();
-        sessionEntity.setSessionCode(sessionCode);
-        sessionEntity.setActive(true);
-         sessionRepository.save(sessionEntity);  // Speichern in DB
 
-        // Create new session
-        PlanningPokerSession session = new PlanningPokerSession(sessionCode);
-        session.addUser(scrumMaster);
-
-        // Add session to the map
-        sessions.put(sessionCode, session);
-        sendSessionIds();
-
-        // Return session details
-        return SessionResponse.builder()
-                .sessionId(sessionCode)
-                .participants(new ArrayList<>(session.getUsers().values()))
-                .memberId(scrumMaster.getId())
-                .scrumMasterId(scrumMaster.getId())
-                .scrumMasterName(scrumMaster.getName())
-                .joinUrl("/join/" + sessionCode)
-                .build();
+        return response;
     }
 
     @MessageMapping("/poker/join")
     @SendTo("/topic/session/joined")
     public SessionResponse join(JoinRequest joinRequest) {
-        PlanningPokerSession session = sessions.get(joinRequest.getSessionId());
-        if (session == null) {
-            sendErrorToUser(joinRequest.getUserName(), "Session not found");
-            return null;
+        System.out.println("Received join request for session: " + joinRequest.getSessionId() +
+                " from user: " + joinRequest.getUserName());
+
+        SessionResponse response = sessionService.joinSession(joinRequest);
+
+        System.out.println("Join processed. Response contains " +
+                response.getParticipants().size() + " participants");
+
+        return response;
+    }
+
+    @MessageMapping("/poker/session/ids/get")
+    @SendTo("/topic/session/ids")
+    public List<String> getSessionIds() {
+        try {
+            System.out.println("BE: Received request for session IDs");
+            List<String> activeIds = sessionService.getActiveSessionIds();
+            System.out.println("BE: Found active sessions: " + activeIds);
+            return activeIds;
+        } catch (Exception e) {
+            System.err.println("BE: Error getting session IDs: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
         }
-        if (!session.isActive()) {
-            sendErrorToUser(joinRequest.getUserName(), "Session is no longer active");
-            return null;
-        }
-
-        // Create new User,hier wird auch uuid für user angewendet
-        User user = new User(
-                UUID.randomUUID().toString(),
-                joinRequest.getUserName(),
-                Role.TEAM_MEMBER,
-                session.getId()
-        );
-
-        // Add user to session
-        session.addUser(user);
-
-        // Notify participants about the new member
-        ParticipantNotification notification = new ParticipantNotification(user.getName(), NotificationType.JOIN);
-        notifyParticipants(session.getId(), notification);
-
-        // Send session state to all users
-        sendSessionState(session.getId());
-        // Return session details
-        return SessionResponse.builder()
-                .sessionId(session.getId())
-                .memberId(user.getId())
-                .build();
     }
 
     @MessageMapping("/poker/reconnect")
@@ -189,60 +155,51 @@ public class PlanningPokerController {
         messagingTemplate.convertAndSend("/topic/session/" + sessionId + "/state", sessionState);
     }
 
-    private void sendSessionIds() {
-        // Collect all active session IDs
-        List<String> activeSessionIds = sessions.entrySet().stream()
-                .filter(entry -> entry.getValue().isActive()) // Only active sessions
-                .map(Map.Entry::getKey) // Get session IDs
-                .toList(); // Convert to a List
-        
-        messagingTemplate.convertAndSend("/topic/session/ids", activeSessionIds);
-    }
 
-    @MessageMapping("/poker/userstory/select")
-    public void selectUserStory(SelectUserStoryRequest request) {
-        // Session und User validieren
-        PlanningPokerSession session =sessions.get(request.getSessionId());
-        if (session == null || !session.isActive()) {
-            sendErrorToUser(request.getUserCode(), "Session nicht gefunden oder inaktiv");
-            return;
-        }
-
-        // Prüfen ob der User Scrum Master ist
-        User user = session.getUsers().get(request.getUserCode());
-        if (user == null || !user.getRole().equals(Role.SCRUM_MASTER)) {
-            sendErrorToUser(request.getUserCode(), "Nur der Scrum Master kann User Stories auswählen");
-            return;
-        }
-
-        try {
-            // User Story aus der Datenbank holen und als ausgewählt markieren
-            UserStory userStory = userStoryRepository.findByUserStoryCode(request.getUserStoryCode())
-                    .orElseThrow(() -> new RuntimeException("User Story nicht gefunden"));
-
-            // Aktuelle User Story in der Session setzen
-            session.setCurrentUserStory(userStory);
-
-            // Alle Session-Teilnehmer über die neue User Story informieren
-            UserStoryNotification notification = UserStoryNotification.builder()
-                    .userStoryCode(userStory.getUserStoryCode())
-                    .title(userStory.getTitle())
-                    .description(userStory.getDescription())
-                    .build();
-
-            // Benachrichtigung an alle Teilnehmer senden
-            messagingTemplate.convertAndSend(
-                    "/topic/session/" + session.getId() + "/userstory",
-                    notification
-            );
-
-            // Session-Status aktualisieren
-            sendSessionState(session.getId());
-
-        } catch (Exception e) {
-            sendErrorToUser(request.getUserStoryCode(), "Fehler beim Auswählen der User Story: " + e.getMessage());
-        }
-    }
+//    @MessageMapping("/poker/userstory/select")
+//    public void selectUserStory(SelectUserStoryRequest request) {
+//        // Session und User validieren
+//        PlanningPokerSession session =sessions.get(request.getSessionId());
+//        if (session == null || !session.isActive()) {
+//            sendErrorToUser(request.getUserCode(), "Session nicht gefunden oder inaktiv");
+//            return;
+//        }
+//
+//        // Prüfen ob der User Scrum Master ist
+//        User user = session.getUsers().get(request.getUserCode());
+//        if (user == null || !user.getRole().equals(Role.SCRUM_MASTER)) {
+//            sendErrorToUser(request.getUserCode(), "Nur der Scrum Master kann User Stories auswählen");
+//            return;
+//        }
+//
+//        try {
+//            // User Story aus der Datenbank holen und als ausgewählt markieren
+//            UserStory userStory = userStoryRepository.findByUserStoryCode(request.getUserStoryCode())
+//                    .orElseThrow(() -> new RuntimeException("User Story nicht gefunden"));
+//
+//            // Aktuelle User Story in der Session setzen
+//            session.setCurrentUserStory(userStory);
+//
+//            // Alle Session-Teilnehmer über die neue User Story informieren
+//            UserStoryNotification notification = UserStoryNotification.builder()
+//                    .userStoryCode(userStory.getUserStoryCode())
+//                    .title(userStory.getTitle())
+//                    .description(userStory.getDescription())
+//                    .build();
+//
+//            // Benachrichtigung an alle Teilnehmer senden
+//            messagingTemplate.convertAndSend(
+//                    "/topic/session/" + session.getId() + "/userstory",
+//                    notification
+//            );
+//
+//            // Session-Status aktualisieren
+//            sendSessionState(session.getId());
+//
+//        } catch (Exception e) {
+//            sendErrorToUser(request.getUserStoryCode(), "Fehler beim Auswählen der User Story: " + e.getMessage());
+//        }
+//    }
 
 
 
