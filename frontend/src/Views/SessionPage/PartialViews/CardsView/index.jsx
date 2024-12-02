@@ -2,9 +2,17 @@ import React, { useState } from "react";
 import { FIBONACCI } from "../../../../Common/Vars/Constants";
 import { Stack } from "@mui/material";
 import PlayingCard from "./Components/PlayingCard";
+import { useDispatch, useSelector } from "react-redux";
+import { setMyVote } from "../../../../_redux/reducers/storySlice";
 
 const CardsView = () => {
+  const dispatch = useDispatch();
   const [selectedCard, setSelectedCard] = useState(0);
+  const myVote = useSelector((state) => state.story.myVote);
+
+  const handleVote = (value) => {
+    dispatch(setMyVote(value));
+  };
 
   return (
     <Stack
@@ -18,6 +26,7 @@ const CardsView = () => {
           key={`${value}-${index}`}
           isSelected={value === selectedCard}
           value={value}
+          vote={myVote}
           onSelect={() => {
             if (selectedCard === value) {
               setSelectedCard(0);
@@ -25,7 +34,9 @@ const CardsView = () => {
               setSelectedCard(value);
             }
           }}
-          onVote={() => {}}
+          onVote={() => {
+            handleVote(value);
+          }}
         />
       ))}
     </Stack>

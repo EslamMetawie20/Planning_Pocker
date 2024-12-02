@@ -5,6 +5,7 @@ import VoteNumber from "../../../../../Components/Typograpghy/VoteNumber";
 
 const PlayingCard = ({
   value,
+  vote,
   isSelected = false,
   onSelect,
   onVote,
@@ -28,6 +29,7 @@ const PlayingCard = ({
     <Stack alignItems={"center"}>
       {isSelected && (
         <Button
+          onClick={handleVote}
           size="small"
           variant="contained"
           color="secondary"
@@ -65,39 +67,41 @@ const PlayingCard = ({
         }}
         onClick={handleSelect}
       >
-        <Stack
-          height={"100%"}
-          width={"95%"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-        >
-          <Typography
-            variant="h3"
-            sx={{
-              fontSize: `${1.2 * size}rem`,
-              color: theme.palette.primary.main,
-            }}
-            alignSelf={"flex-start"}
+        {(vote === null || vote === value) && (
+          <Stack
+            height={"100%"}
+            width={"95%"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
           >
-            {value}
-          </Typography>
-          <VoteNumber
-            number={value}
-            height={`${3 * size}rem`}
-            width={`${3 * size}rem`}
-            fontSize={`${1.5 * size}rem`}
-          />
-          <Typography
-            variant="h3"
-            sx={{
-              fontSize: `${1.2 * size}rem`,
-              color: theme.palette.primary.main,
-            }}
-            alignSelf={"flex-end"}
-          >
-            {value}
-          </Typography>
-        </Stack>
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: `${1.2 * size}rem`,
+                color: theme.palette.primary.main,
+              }}
+              alignSelf={"flex-start"}
+            >
+              {value}
+            </Typography>
+            <VoteNumber
+              number={value}
+              height={`${3 * size}rem`}
+              width={`${3 * size}rem`}
+              fontSize={`${1.5 * size}rem`}
+            />
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: `${1.2 * size}rem`,
+                color: theme.palette.primary.main,
+              }}
+              alignSelf={"flex-end"}
+            >
+              {value}
+            </Typography>
+          </Stack>
+        )}
       </div>
     </Stack>
   );
@@ -105,6 +109,7 @@ const PlayingCard = ({
 
 PlayingCard.propTypes = {
   value: PropTypes.number.isRequired,
+  vote: PropTypes.number,
   isSelected: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
   onVote: PropTypes.func.isRequired,
