@@ -12,7 +12,7 @@ const MembersView = () => {
   return (
     <FrameComponent
       paperSx={{
-        flex: 1.1,
+        flex: 1,
       }}
       title={`Members ${members?.length}`}
     >

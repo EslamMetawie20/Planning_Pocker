@@ -6,6 +6,9 @@ const VoteNumber = ({
   caption = "Last vote",
   includeCaption = false,
   alt = false,
+  height = "1.8rem",
+  width = "1.8rem",
+  fontSize = "0.75rem",
 }) => {
   const theme = useTheme();
 
@@ -31,9 +34,9 @@ const VoteNumber = ({
       >
         <Avatar
           sx={{
-            fontSize: "0.75rem",
-            height: "1.8rem",
-            width: "1.8rem",
+            fontSize: fontSize,
+            height: height,
+            width: width,
             border: 1,
             background: `linear-gradient(45deg, ${mainColor} 0%, ${lightColor} 100%)`,
           }}
@@ -55,6 +58,9 @@ VoteNumber.prototypes = {
   caption: PropTypes.string,
   includeCaption: PropTypes.bool,
   alt: PropTypes.bool,
+  height: PropTypes.string,
+  width: PropTypes.string,
+  fontSize: PropTypes.string,
 };
 
 export default VoteNumber;
