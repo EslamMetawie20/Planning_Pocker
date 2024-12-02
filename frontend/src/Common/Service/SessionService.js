@@ -1,10 +1,6 @@
 import axios from "../Config/AxiosConfig";
 import WebSocketService from "../Config/WebSocketConfig";
-import {
-  BACKEND_ACTIONS,
-  FRONTEND_ACTIONS,
-  TOPIC_PATHS,
-} from "../Vars/Channels";
+import { BACKEND_ACTIONS, TOPIC_PATHS } from "../Vars/Channels";
 
 export async function getActiveSessionsRequestAsync() {
   try {
@@ -27,42 +23,16 @@ export async function createSessionRequestAsync(request) {
 }
 
 export const getSessionsSocket = (onSuccess, onError) => {
-    console.log('Starting getSessionsSocket');
-
-    // Funktion zum Senden der Anfrage
-    const getIds = () => {
-        try {
-            // Erst subscriben
-            const subscription = WebSocketService.subscribe(
-                TOPIC_PATHS.SESSION_IDS_GET(), // "/topic/session/ids"
-                (response) => {
-                    console.log('Received session IDs:', response);
-                    if (response) {
-                        onSuccess(response);
-                    }
-                    // Optional: Subscription beenden nach Erhalt
-                    // subscription.unsubscribe();
-                }
-            );
-
-            // Dann Message senden
-            console.log('Sending get sessions request');
-            WebSocketService.sendMessage(
-                BACKEND_ACTIONS.GET_SESSION_IDS(), // "/app/poker/session/ids/get"
-                {} // Leerer Body, da keine Daten benötigt
-            );
-        } catch (err) {
-            console.error('Error in getIds:', err);
-            onError(err.message);
-        }
-    };
-
-    // Verbindung herstellen falls nötig
-    if (WebSocketService.isConnected) {
-        getIds();
-    } else {
-        WebSocketService.connect(getIds, onError);
-    }
+  WebSocketService.connect(() => {
+    WebSocketService.subscribe(TOPIC_PATHS.SESSION_IDS_GET(), (response) => {
+      if (response) {
+        onSuccess(response);
+      } else if (response.error) {
+        onError(response.error || "Failed to get session ids");
+      }
+    });
+    WebSocketService.sendMessage(BACKEND_ACTIONS.GET_SESSION_IDS());
+  }, onError);
 };
 
 export const createSessionSocket = (request, onSuccess, onCreated, onError) => {
