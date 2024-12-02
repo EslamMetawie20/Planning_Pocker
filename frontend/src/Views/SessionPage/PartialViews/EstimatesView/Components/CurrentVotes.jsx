@@ -3,10 +3,11 @@ import React from "react";
 import InfoRow from "../../../../../Components/Typograpghy/InfoRow";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
+import TimeCounter from "./TimeCounter";
 
-const RoundComp = ({
+const CurrentVotes = ({
   title = "Last round:",
-  time = "--:--",
+  time = new Date(),
   frequent = "--",
   high = "--",
   low = "--",
@@ -28,12 +29,19 @@ const RoundComp = ({
             color="primary.light"
             onClick={onClick}
           >
-            End voting
+            reveal voting
           </Button>
         )}
       </Stack>
       <Stack mt={1}>
-        <InfoRow title="Time" value={time} />
+        <Stack
+          direction={"row"}
+          alignItems={"center"}
+          justifyContent={"space-between"}
+        >
+          <Typography variant="caption">{"Time"}</Typography>
+          <TimeCounter startDate={time} isRunning={true} />
+        </Stack>
         <InfoRow title="Frequent" value={frequent} />
         <InfoRow title="High" value={high} />
         <InfoRow title="Low" value={low} />
@@ -42,13 +50,14 @@ const RoundComp = ({
   );
 };
 
-RoundComp.prototypes = {
+CurrentVotes.prototypes = {
   title: PropTypes.string,
-  time: PropTypes.string,
+  time: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
+    .isRequired,
   frequent: PropTypes.string,
   high: PropTypes.string,
   low: PropTypes.string,
   onClick: PropTypes.func,
 };
 
-export default RoundComp;
+export default CurrentVotes;

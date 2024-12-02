@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
-import { Divider, IconButton, Stack, Dialog } from "@mui/material";
+import { Divider, IconButton, Stack, Dialog, Box } from "@mui/material";
 import { AddCircleOutline } from "@mui/icons-material";
 import StoryComp from "./Components/StoryComp";
-import RoundComp from "./Components/RoundComp";
+import CurrentVotes from "./Components/CurrentVotes.jsx";
 import EstimateForm from "./Components/EstimateForm";
 import EstimatesFooter from "./Components/EstimatesFooter";
 import useStories from "../../../../Common/Hooks/useStories";
@@ -52,7 +52,6 @@ const EstimatesView = () => {
         sx={{
           paddingY: 1,
           paddingX: 0,
-          mt: 2,
         }}
         title={"User stories"}
         icon={
@@ -66,7 +65,7 @@ const EstimatesView = () => {
         {status === STATUS.LOADING ? (
           <LoaderComp />
         ) : (
-          <>
+          <Stack height={"100%"}>
             <Stack spacing={1} height={"25%"} overflow={"auto"} paddingX={1}>
               {stories.map((story) => (
                 <StoryComp
@@ -79,16 +78,18 @@ const EstimatesView = () => {
                 />
               ))}
             </Stack>
-            <Stack height={"65%"} spacing={2} px={2} mt={2}>
+            <Box px={2}>
               <Divider />
-              <RoundComp
-                title="Current round:"
-                time="01:27"
-                onClick={() => {}}
-              />
+            </Box>
+            <Box px={2} my={2}>
+              <CurrentVotes title="Current votes:" onClick={() => {}} />
+            </Box>
+            <Box px={2}>
               <Divider />
-              <Stack justifyContent={"space-between"} flex={1}>
-                {isScrumMaster && <EstimateForm />}
+            </Box>
+            <Stack flex={1} justifyContent={"space-between"} px={2} mt={2}>
+              {isScrumMaster && <EstimateForm />}
+              <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
                 <EstimatesFooter
                   sessionId={sessionId}
                   buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
@@ -96,9 +97,9 @@ const EstimatesView = () => {
                     isScrumMaster ? handleEndSession : handleLeaveSession
                   }
                 />
-              </Stack>
+              </Box>
             </Stack>
-          </>
+          </Stack>
         )}
       </FrameComponent>
 
