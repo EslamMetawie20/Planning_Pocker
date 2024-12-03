@@ -5,7 +5,9 @@ import MemberComponent from "./Components/MemberComponent";
 import { useSelector } from "react-redux";
 import { STATUS } from "../../../../Common/Vars/Constants";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
-import { getTokenData } from "../../../../Services/tokenUtils";
+import { getTokenData } from "../../../../Common/Utils/tokenUtils";
+
+
 
 const MembersView = () => {
     const { members, status } = useSelector((state) => state.member);

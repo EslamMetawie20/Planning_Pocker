@@ -1,6 +1,6 @@
 import React, { useState, useMemo, Suspense, useEffect } from "react";
 import "react-quill/dist/quill.snow.css";
-import { TextField, Button, Box, Grid, Typography, Stack } from "@mui/material";
+import { TextField, Button, Box, Typography, Stack } from "@mui/material";
 import ReactQuill from "react-quill";
 import PropTypes from "prop-types";
 import LoaderComp from "./../Components/Extras/LoaderComp";
@@ -16,6 +16,7 @@ function QuilEditor({
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
+    // تعديل للتخلص من الزر الخاص بالصورة وأي أدوات غير ضرورية
     const modules = useMemo(
         () => ({
             toolbar: [
@@ -25,7 +26,7 @@ function QuilEditor({
                 [{ font: [] }],
                 [{ align: ["right", "center", "justify"] }],
                 [{ list: "ordered" }, { list: "bullet" }],
-                ["link", "image"],
+                ["link"], // إزالة "image" من هنا
                 [{ color: ["red", "#785412"] }],
                 [{ background: ["red", "#785412"] }],
             ],
@@ -45,7 +46,6 @@ function QuilEditor({
             "bullet",
             "link",
             "color",
-            "image",
             "background",
             "align",
             "size",
