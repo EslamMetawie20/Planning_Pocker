@@ -9,8 +9,8 @@ const CurrentVotes = ({
   title = "Last round:",
   time = new Date(),
   frequent = "--",
-  high = "--",
-  low = "--",
+  max = "--",
+  min = "--",
   onClick,
 }) => {
   const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
@@ -29,7 +29,7 @@ const CurrentVotes = ({
             color="primary.light"
             onClick={onClick}
           >
-            reveal voting
+            reveal votes
           </Button>
         )}
       </Stack>
@@ -42,9 +42,8 @@ const CurrentVotes = ({
           <Typography variant="caption">{"Time"}</Typography>
           <TimeCounter startDate={time} isRunning={true} />
         </Stack>
-        <InfoRow title="Frequent" value={frequent} />
-        <InfoRow title="High" value={high} />
-        <InfoRow title="Low" value={low} />
+        <InfoRow title="Max" value={max} />
+        <InfoRow title="Min" value={min} />
       </Stack>
     </Box>
   );
