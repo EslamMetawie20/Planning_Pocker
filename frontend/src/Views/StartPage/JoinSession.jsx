@@ -117,7 +117,7 @@ function JoinSession() {
           >
             <TextField
               fullWidth
-              label="name"
+              label="Name"
               variant="outlined"
               value={name}
               size="small"

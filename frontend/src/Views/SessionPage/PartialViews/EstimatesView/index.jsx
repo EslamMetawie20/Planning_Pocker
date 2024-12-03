@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
 import { Divider, IconButton, Stack, Dialog, Box } from "@mui/material";
 import { AddCircleOutline } from "@mui/icons-material";
@@ -11,10 +11,10 @@ import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
 import { STATUS } from "../../../../Common/Vars/Constants";
 import { useDispatch, useSelector } from "react-redux";
-import { addStory } from "../../../../_redux/reducers/storySlice";
+import { addStory, fetchSessionStories } from "../../../../_redux/reducers/storySlice";
 import {
-  endSession,
-  leaveSession,
+    endSession,
+    leaveSession,
 } from "../../../../_redux/reducers/sessionSlice.js";
 
 const EstimatesView = () => {
@@ -24,20 +24,28 @@ const EstimatesView = () => {
     const sessionId = useSelector((state) => state.session.sessionId);
     const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
 
+    useEffect(() => {
+        if (sessionId) {
+            dispatch(fetchSessionStories());
+        }
+    }, [sessionId, dispatch]);
+
     const handleAddStory = (title, content) => {
         const newStory = {
             title,
             content,
             estimate: 0,
+            sessionId,
         };
 
-        // Call WebSocket method to add the story
         addStorySocket(
             sessionId,
             newStory,
             (response) => {
                 console.log("Story added successfully:", response);
-                dispatch(addStory({ ...newStory, id: response.id }));
+                dispatch(addStory({ ...newStory, id: response.id })).then(() => {
+                    dispatch(fetchSessionStories());
+                });
             },
             (error) => {
                 console.error("Failed to add story:", error);
@@ -115,7 +123,6 @@ const EstimatesView = () => {
                 )}
             </FrameComponent>
 
-            {/* Dialog لإظهار QuilEditor */}
             <Dialog
                 open={openQuilEditor}
                 onClose={() => setOpenQuilEditor(false)}
