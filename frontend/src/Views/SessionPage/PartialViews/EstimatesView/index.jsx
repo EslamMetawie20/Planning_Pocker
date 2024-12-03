@@ -18,107 +18,119 @@ import {
 } from "../../../../_redux/reducers/sessionSlice.js";
 
 const EstimatesView = () => {
-  const { status, stories, selectedStory, handleSelectStory } = useStories();
-  const [openQuilEditor, setOpenQuilEditor] = useState(false);
-  const dispatch = useDispatch();
-  const sessionId = useSelector((state) => state.session.sessionId);
-  const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
+    const { status, stories, selectedStory, handleSelectStory } = useStories();
+    const [openQuilEditor, setOpenQuilEditor] = useState(false);
+    const dispatch = useDispatch();
+    const sessionId = useSelector((state) => state.session.sessionId);
+    const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
 
-  const handleAddStory = (title, content) => {
-    const newStory = {
-      id: `story-${Date.now()}`,
-      title,
-      content,
-      estimate: 0,
+    const handleAddStory = (title, content) => {
+        const newStory = {
+            title,
+            content,
+            estimate: 0,
+        };
+
+        // Call WebSocket method to add the story
+        addStorySocket(
+            sessionId,
+            newStory,
+            (response) => {
+                console.log("Story added successfully:", response);
+                dispatch(addStory({ ...newStory, id: response.id }));
+            },
+            (error) => {
+                console.error("Failed to add story:", error);
+            }
+        );
+
+        setOpenQuilEditor(false);
     };
-    dispatch(addStory(newStory));
-    setOpenQuilEditor(false);
-  };
 
-  const handleLeaveSession = () => {
-    dispatch(leaveSession());
-  };
+    const handleLeaveSession = () => {
+        dispatch(leaveSession());
+    };
 
-  const handleEndSession = () => {
-    dispatch(endSession());
-  };
+    const handleEndSession = () => {
+        dispatch(endSession());
+    };
 
-  return (
-    <>
-      <FrameComponent
-        paperSx={{
-          flex: 1,
-        }}
-        sx={{
-          paddingY: 1,
-          paddingX: 0,
-        }}
-        title={"User stories"}
-        icon={
-          isScrumMaster && (
-            <IconButton onClick={() => setOpenQuilEditor(true)}>
-              <AddCircleOutline color="secondary" fontSize="small" />
-            </IconButton>
-          )
-        }
-      >
-        {status === STATUS.LOADING ? (
-          <LoaderComp />
-        ) : (
-          <Stack height={"100%"}>
-            <Stack spacing={1} height={"25%"} overflow={"auto"} paddingX={1}>
-              {stories.map((story) => (
-                <StoryComp
-                  key={story?.id}
-                  title={story?.title}
-                  selected={selectedStory.id === story?.id}
-                  estimate={story?.estimate}
-                  disabled={!isScrumMaster}
-                  onClick={() => handleSelectStory(story?.id)}
+    return (
+        <>
+            <FrameComponent
+                paperSx={{
+                    flex: 1,
+                }}
+                sx={{
+                    paddingY: 1,
+                    paddingX: 0,
+                }}
+                title={"User stories"}
+                icon={
+                    isScrumMaster && (
+                        <IconButton onClick={() => setOpenQuilEditor(true)}>
+                            <AddCircleOutline color="secondary" fontSize="small" />
+                        </IconButton>
+                    )
+                }
+            >
+                {status === STATUS.LOADING ? (
+                    <LoaderComp />
+                ) : (
+                    <Stack height={"100%"}>
+                        <Stack spacing={1} height={"25%"} overflow={"auto"} paddingX={1}>
+                            {stories.map((story) => (
+                                <StoryComp
+                                    key={story?.id}
+                                    title={story?.title}
+                                    selected={selectedStory.id === story?.id}
+                                    estimate={story?.estimate}
+                                    disabled={!isScrumMaster}
+                                    onClick={() => handleSelectStory(story?.id)}
+                                />
+                            ))}
+                        </Stack>
+                        <Box px={2}>
+                            <Divider />
+                        </Box>
+                        <Box px={2} my={2}>
+                            <CurrentVotes title="Current votes:" onClick={() => {}} />
+                        </Box>
+                        <Box px={2}>
+                            <Divider />
+                        </Box>
+                        <Stack flex={1} justifyContent={"space-between"} px={2} mt={2}>
+                            {isScrumMaster && <EstimateForm />}
+                            <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
+                                <EstimatesFooter
+                                    sessionId={sessionId}
+                                    buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
+                                    onClick={
+                                        isScrumMaster ? handleEndSession : handleLeaveSession
+                                    }
+                                />
+                            </Box>
+                        </Stack>
+                    </Stack>
+                )}
+            </FrameComponent>
+
+            {/* Dialog لإظهار QuilEditor */}
+            <Dialog
+                open={openQuilEditor}
+                onClose={() => setOpenQuilEditor(false)}
+                maxWidth="md"
+                fullWidth
+            >
+                <QuilEditor
+                    sendData={handleAddStory}
+                    onSubmit={() => setOpenQuilEditor(false)}
+                    initial={{ title: "", content: "" }}
+                    buttonLabel="Save"
                 />
-              ))}
-            </Stack>
-            <Box px={2}>
-              <Divider />
-            </Box>
-            <Box px={2} my={2}>
-              <CurrentVotes title="Current votes:" onClick={() => {}} />
-            </Box>
-            <Box px={2}>
-              <Divider />
-            </Box>
-            <Stack flex={1} justifyContent={"space-between"} px={2} mt={2}>
-              {isScrumMaster && <EstimateForm />}
-              <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
-                <EstimatesFooter
-                  sessionId={sessionId}
-                  buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
-                  onClick={
-                    isScrumMaster ? handleEndSession : handleLeaveSession
-                  }
-                />
-              </Box>
-            </Stack>
-          </Stack>
-        )}
-      </FrameComponent>
-
-      {/* Dialog لإظهار QuilEditor */}
-      <Dialog
-        open={openQuilEditor}
-        onClose={() => setOpenQuilEditor(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <QuilEditor
-          sendData={handleAddStory}
-          onSubmit={() => setOpenQuilEditor(false)}
-          initial={{ title: "", content: "" }}
-          buttonLabel="Save"
-        />
-      </Dialog>
-    </>
-  );
+            </Dialog>
+        </>
+    );
 };
 
 export default EstimatesView;

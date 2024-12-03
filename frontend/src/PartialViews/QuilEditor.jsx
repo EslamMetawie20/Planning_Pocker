@@ -1,6 +1,6 @@
 import React, { useState, useMemo, Suspense, useEffect } from "react";
 import "react-quill/dist/quill.snow.css";
-import { TextField, Button, Box, Grid, Typography } from "@mui/material";
+import { TextField, Button, Box, Grid, Typography, Stack } from "@mui/material";
 import ReactQuill from "react-quill";
 import PropTypes from "prop-types";
 import LoaderComp from "./../Components/Extras/LoaderComp";
@@ -76,40 +76,22 @@ function QuilEditor({
     }, [initial]);
 
     return (
-        <Box sx={{ p: 3, backgroundColor: "#fffffff", borderRadius: "8px" }}>
-            <Grid container spacing={2} alignItems="center">
-                <Grid
-                    item
-                    xs={4}
-                    sx={{ display: "flex", alignItems: "flex-start", p: 2 }}
-                >
-                    <img
-                        src="https://www.dos-online.de/wp-content/uploads/2023/08/cropped-DOS_Logo_2023_mit_UZ_RGB.png"
-                        alt="dos-logo"
-                        style={{ width: "110px", height: "110px", marginBottom: "10px" }}
-                    />
-                </Grid>
-                <Grid
-                    item
-                    xs={8}
-                    sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end",
-                        justifyContent: "flex-end",
-                    }}
-                >
-                    <Typography
-                        variant="h6"
-                        gutterBottom
-                        sx={{
-                            fontSize: { xs: "1.2rem", sm: "1.5rem" },
-                        }}
-                    >
-                        SCRUM PLANNING POKER
-                    </Typography>
-                </Grid>
-            </Grid>
+        <Box sx={{ p: 3, backgroundColor: "#ffffff", borderRadius: "8px" }}>
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="flex-end"
+                height="10vh"
+                width="100%"
+                mb={2}
+            >
+                <img
+                    height="100%"
+                    alt="dos-logo"
+                    src="https://www.dos-online.de/wp-content/uploads/2023/08/cropped-DOS_Logo_2023_mit_UZ_RGB.png"
+                />
+                <Typography variant="h5">SCRUM Planning Poker</Typography>
+            </Stack>
 
             <TextField
                 fullWidth
@@ -132,7 +114,7 @@ function QuilEditor({
                 />
             </Suspense>
 
-            <Button onClick={handleSubmit} variant="contained" fullWidth sx={{ mt: 2 }}>
+            <Button onClick={handleSubmit} variant="contained" fullWidth sx={{ mt: 8 }}>
                 {buttonLabel}
             </Button>
         </Box>

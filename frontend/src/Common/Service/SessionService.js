@@ -147,3 +147,24 @@ export const endSessionSocket = (request, onError) => {
     WebSocketService.sendMessage(BACKEND_ACTIONS.END_SESSION(), request);
   }, onError);
 };
+
+export const addStorySocket = (sessionId, storyData, onSuccess, onError) => {
+    WebSocketService.connect(() => {
+        const subscription = WebSocketService.subscribe(
+            TOPIC_PATHS.STORY_UPDATED(sessionId),
+            (response) => {
+                if (response) {
+                    onSuccess(response);
+                } else if (response.error) {
+                    onError(response.error || "Failed to add story");
+                }
+                subscription.unsubscribe();
+            }
+        );
+
+        WebSocketService.sendMessage(
+            BACKEND_ACTIONS.ADD_STORY(sessionId),
+            storyData
+        );
+    }, onError);
+};

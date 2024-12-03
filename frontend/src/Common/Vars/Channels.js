@@ -12,6 +12,7 @@ export const TOPIC_PATHS = {
   PARTICIPANTS_UPDATES: (sessionId) =>
     `/topic/session/${sessionId}/participants`,
   STORY_UPDATED: (storyId) => `/topic/userstory/${storyId}`,
+  STORY_UPDATED: (sessionId) => `/topic/session/${sessionId}/userstory`,
 };
 
 export const BACKEND_ACTIONS = {
@@ -25,6 +26,7 @@ export const BACKEND_ACTIONS = {
   ADD_STORY: (sessionId) => `/userstories/add`,
   DELETE_STORY: (storyId) => `/userstories/delete/${storyId}`,
   UPDATE_STORY: (storyId) => `/userstories/update/${storyId}`,
+  ADD_STORY: (sessionId) => `/app/poker/${sessionId}/userstory/add`,
 };
 
 export const FRONTEND_ACTIONS = {
