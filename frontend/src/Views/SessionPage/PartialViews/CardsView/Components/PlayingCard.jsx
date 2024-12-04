@@ -1,10 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Button, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Button, Stack, Typography, useTheme } from "@mui/material";
 import VoteNumber from "../../../../../Components/Typograpghy/VoteNumber";
 
 const PlayingCard = ({
   value,
+  disabled = false,
   vote,
   isSelected = false,
   onSelect,
@@ -14,12 +15,20 @@ const PlayingCard = ({
   const theme = useTheme();
 
   const handleSelect = () => {
+    if (disabled) {
+      return;
+    }
+
     if (onSelect && typeof onSelect === "function") {
       onSelect(value);
     }
   };
 
   const handleVote = () => {
+    if (disabled) {
+      return;
+    }
+
     if (onVote && typeof onVote === "function") {
       onVote(value);
     }
@@ -27,7 +36,7 @@ const PlayingCard = ({
 
   return (
     <Stack alignItems={"center"}>
-      {isSelected && (
+      {isSelected && !disabled && (
         <Button
           onClick={handleVote}
           size="small"
@@ -45,8 +54,8 @@ const PlayingCard = ({
           VOTE
         </Button>
       )}
-      <div
-        style={{
+      <Box
+        sx={{
           width: `${87 * size}px`,
           height: `${122 * size}px`,
           border: `4px solid ${theme.palette.primary.main}`,
@@ -57,17 +66,23 @@ const PlayingCard = ({
           alignItems: "center",
           backgroundColor: theme.palette.common.white,
           boxShadow: isSelected ? theme.shadows[3] : theme.shadows[1],
-          cursor: "pointer",
+          cursor: !disabled && "pointer",
           textAlign: "center",
           position: "relative",
           transform: isSelected
             ? `translateY(-${122 * size * 0.2}px)`
             : "translateY(0)",
           transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          "&:hover": {
+            transform:
+              !isSelected &&
+              !disabled &&
+              `translateY(-${122 * size * 0.075}px)`,
+          },
         }}
         onClick={handleSelect}
       >
-        {(vote === null || vote === value) && (
+        {vote === null || vote === value ? (
           <Stack
             height={"100%"}
             width={"95%"}
@@ -101,14 +116,31 @@ const PlayingCard = ({
               {value}
             </Typography>
           </Stack>
+        ) : (
+          <Box
+            height={"100%"}
+            width={"100%"}
+            sx={{
+              border: `1px solid ${theme.palette.common.white}`,
+              borderRadius: "5px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: theme.palette.primary.main,
+            }}
+          >
+            <img height={"30%"} alt="logo" src={"/dos.png"} />
+          </Box>
         )}
-      </div>
+      </Box>
     </Stack>
   );
 };
 
 PlayingCard.propTypes = {
   value: PropTypes.number.isRequired,
+  disabled: PropTypes.bool,
   vote: PropTypes.number,
   isSelected: PropTypes.bool,
   onSelect: PropTypes.func.isRequired,
