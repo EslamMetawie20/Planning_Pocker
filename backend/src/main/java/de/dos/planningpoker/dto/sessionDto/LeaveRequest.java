@@ -1,9 +1,9 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 
 import lombok.Data;
 
 @Data
 public class LeaveRequest {
-    private String sessionId;
+    private String sessionCode;
     String userId;
 }

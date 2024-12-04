@@ -1,8 +1,8 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 import lombok.Data;
 
 @Data
 public class ReconnectRequest {
-    private String sessionId;
+    private String sessionCode;
     String userId;
 }

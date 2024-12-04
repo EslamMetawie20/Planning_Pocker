@@ -1,4 +1,4 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 
 import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.User;

@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class Vote {
+    private String sessionCode;
     private String userId;
-    private Long userStoryId;
     private int estimation;
     private LocalDateTime voteTime;
 }

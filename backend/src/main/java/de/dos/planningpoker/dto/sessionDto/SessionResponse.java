@@ -1,6 +1,8 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 
+import de.dos.planningpoker.model.websocket.Story;
 import de.dos.planningpoker.model.websocket.User;
+import de.dos.planningpoker.model.websocket.Vote;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +14,7 @@ public class SessionResponse {
     private String sessionId;
     private String scrumMasterId;
     private String memberId;
-    private String scrumMasterName;
     private List<User> participants;
-    private String joinUrl;
+    private List<Story> userStories;
+    private List<Vote> votes;
 }

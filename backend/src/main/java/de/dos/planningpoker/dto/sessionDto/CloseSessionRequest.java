@@ -1,4 +1,4 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CloseSessionRequest {
-    private String sessionId;
+    private String sessionCode;
     private String userId;
 }

@@ -1,12 +1,10 @@
 package de.dos.planningpoker.model.websocket;
 
-
-
 import de.dos.planningpoker.enumeration.Role;
-import de.dos.planningpoker.model.entity.UserStory;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,16 +13,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @Data
 @RequiredArgsConstructor
 public class PlanningPokerSession {
-    private final String id;         // sessionCode
-    private Long databaseId;         // neue Feld für DB-Referenz
+    private final String id; // sessionCode
+    private Long databaseId; // neue Feld für DB-Referenz
     private String scrumMasterId;
     private String scrumMasterName;
     private Map<String, User> users = new ConcurrentHashMap<>();
-    private boolean active = true;   // direkt initialisieren
-
+    private boolean active = true; // direkt initialisieren
+    
     // UserStory Management
-    private List<UserStory> userStories = new ArrayList<>();
-    private UserStory currentUserStory;
+    private Map<String, Story> userStories = new ConcurrentHashMap<>();
+    private List<Vote> sessionVotes = new ArrayList<>();
+    private boolean votesRevealed = false;
+    private LocalDateTime roundStart;
+    private String currentUserStoryId;
 
     // Constructor können wir vereinfachen, da @RequiredArgsConstructor das handled
     // und active bereits initialisiert ist
@@ -41,21 +42,48 @@ public class PlanningPokerSession {
 
     public void removeUser(String id) {
         if (id.equals(scrumMasterId)) {
-            scrumMasterId = null;    // Scrum Master ID zurücksetzen wenn der Scrum Master geht
+            scrumMasterId = null; // Scrum Master ID zurücksetzen wenn der Scrum Master geht
         }
         users.remove(id);
     }
 
-    // Vereinfachte UserStory Methoden
-    public void setCurrentUserStory(UserStory userStory) {
-        addUserStory(userStory);     // Dies stellt sicher dass die Story in der Liste ist
-        this.currentUserStory = userStory;
+    // UserStory Management using Map
+    public void setCurrentUserStory(String storyId) {
+        this.currentUserStoryId = storyId;
+        resetRound();
     }
 
-    public void addUserStory(UserStory userStory) {
-        if (!userStories.contains(userStory)) {
-            userStories.add(userStory);
+    public void acceptUserStory(String storyId) {
+        Story story = userStories.get(storyId);
+        story.setAccepted(true);
+        resetRound();
+    }
+
+    public void putUserStory(Story userStory) {
+        if (userStory.getId() == null) {
+            throw new IllegalArgumentException("UserStory must have a valid ID");
         }
+        userStories.put(userStory.getId(), userStory);
+    }
+
+    public Story getUserStoryById(String storyId) {
+        return userStories.get(storyId);
+    }
+
+    public void removeUserStory(String storyId) {
+        if (currentUserStoryId.equals(storyId)) {
+            currentUserStoryId = null; // Reset current story if it's being removed
+            resetRound();
+        }
+        userStories.remove(storyId);
+    }
+
+    public void addVote(Vote vote) {
+        sessionVotes.add(vote);
+    }
+
+    public void revealVotes() {
+        votesRevealed = true;
     }
 
     // Getter für databaseId
@@ -66,5 +94,11 @@ public class PlanningPokerSession {
     // Setter für databaseId
     public void setDatabaseId(Long databaseId) {
         this.databaseId = databaseId;
+    }
+
+    public void resetRound(){
+        sessionVotes.clear();
+        votesRevealed = false;
+        roundStart = LocalDateTime.now();
     }
 }

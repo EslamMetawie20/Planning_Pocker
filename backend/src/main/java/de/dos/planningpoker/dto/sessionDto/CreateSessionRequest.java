@@ -1,4 +1,4 @@
-package de.dos.planningpoker.dto;
+package de.dos.planningpoker.dto.sessionDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
