@@ -2,19 +2,18 @@ import React, { useState } from "react";
 import parse from "html-react-parser";
 import DOMPurify from "dompurify";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
-import { IconButton, Dialog, Stack, Box, Typography } from "@mui/material";
+import { IconButton, Dialog, Stack, Box } from "@mui/material";
 import { EditRounded } from "@mui/icons-material";
 import useStories from "../../../../Common/Hooks/useStories";
 import { STATUS } from "../../../../Common/Vars/Constants";
+import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
 import { useSelector } from "react-redux";
 import CardsView from "../CardsView/index.jsx";
 
 const StoryView = () => {
   const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
-  const sessionId = useSelector((state) => state.session.sessionId);
-
-  const { status, selectedStory, handleUpdateStory, stories } = useStories();
+  const { status, selectedStory, handleUpdateStory } = useStories();
 
   const [openEditor, setOpenEditor] = useState(false);
 
@@ -27,19 +26,11 @@ const StoryView = () => {
   };
 
   const updateStory = (updatedStory) => {
-    const request = {
-      sessionCode: sessionId,
-      userStoryId: updatedStory?.id,
-      title: updatedStory?.title,
-      description: updatedStory?.content,
-    };
-    handleUpdateStory(request);
+    handleUpdateStory(updatedStory);
     handleCloseEditor();
   };
 
-  const cleanHTML = selectedStory?.content
-    ? DOMPurify.sanitize(selectedStory?.content)
-    : "";
+  const cleanHTML = DOMPurify.sanitize(selectedStory?.content);
   const parsedContent = parse(cleanHTML);
 
   return (
@@ -54,27 +45,15 @@ const StoryView = () => {
               height: !isScrumMaster ? "unset" : "100%",
             }}
             icon={
-              isScrumMaster &&
-              stories.length > 0 && (
+              isScrumMaster && (
                 <IconButton onClick={handleEditClick}>
                   <EditRounded color="secondary" fontSize="small" />
                 </IconButton>
               )
             }
           >
-            {stories.length === 0 ? (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                height="100%"
-              >
-                <Typography variant="h5" fontFamily="Verdana">
-                  {isScrumMaster
-                    ? "There are no user stories. Please add a new one."
-                    : "Please wait for the Scrum Master to add a new story."}
-                </Typography>
-              </Box>
+            {status === STATUS.LOADING ? (
+              <LoaderComp />
             ) : (
               <>
                 {parsedContent}

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState } from "react";
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
 import { Divider, IconButton, Stack, Dialog, Box } from "@mui/material";
 import { AddCircleOutline } from "@mui/icons-material";
@@ -10,41 +9,24 @@ import EstimatesFooter from "./Components/EstimatesFooter";
 import useStories from "../../../../Common/Hooks/useStories";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
+import { STATUS } from "../../../../Common/Vars/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import {
   endSession,
   leaveSession,
 } from "../../../../_redux/reducers/sessionSlice.js";
-import { revealVotes } from "../../../../_redux/reducers/storySlice.js";
-import DeleteConfirmationDialog from "./Components/DeleteConfirmationDialog.jsx";
 
 const EstimatesView = () => {
-  const {
-    stories,
-    selectedStory,
-    handleSelectStory,
-    handleAddStory,
-    handleDeleteStory,
-  } = useStories();
+  const { status, stories, selectedStory, handleSelectStory, handleAddStory } =
+    useStories();
   const [openQuilEditor, setOpenQuilEditor] = useState(false);
   const dispatch = useDispatch();
-  const { sessionId, isScrumMaster, roundStart, roundEnd } = useSelector(
-    (state) => state.session
-  );
+  const sessionId = useSelector((state) => state.session.sessionId);
+  const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
 
   const addStory = (title, content) => {
     handleAddStory(title, content);
     setOpenQuilEditor(false);
-  };
-  const messages = {
-    endSession:
-      "Are you sure you want to end the session? This action cannot be undone and may affect other participants.",
-    leaveSession:
-      "Are you sure you want to leave the session? You can rejoin later if needed, but some changes may not be saved.",
-  };
-
-  const handleRevealVotes = () => {
-    dispatch(revealVotes());
   };
 
   const handleLeaveSession = () => {
@@ -54,30 +36,6 @@ const EstimatesView = () => {
   const handleEndSession = () => {
     dispatch(endSession());
   };
-
-  const [openDelete, setOpenDelete] = useState(false);
-  const handleDeleteClick = () => {
-    setOpenDelete(true);
-  };
-
-  const handleCloseDelete = () => {
-    setOpenDelete(false);
-  };
-
-  const deleteStory = () => {
-    const request = { sessionCode: sessionId, userStoryId: selectedStory?.id };
-    handleDeleteStory(request);
-    handleCloseDelete();
-  };
-
-  const [blinking, setBlinking] = useState(false);
-  useEffect(() => {
-    if (isScrumMaster && stories.length === 0) {
-      setBlinking(true);
-    } else {
-      setBlinking(false);
-    }
-  }, [isScrumMaster, stories.length]);
 
   return (
     <>
@@ -92,16 +50,13 @@ const EstimatesView = () => {
         title={"User stories"}
         icon={
           isScrumMaster && (
-            <IconButton
-              onClick={() => setOpenQuilEditor(true)}
-              className={blinking ? "blinking" : ""}
-            >
+            <IconButton onClick={() => setOpenQuilEditor(true)}>
               <AddCircleOutline color="secondary" fontSize="small" />
             </IconButton>
           )
         }
       >
-        {false ? (
+        {status === STATUS.LOADING ? (
           <LoaderComp />
         ) : (
           <Stack height={"100%"}>
@@ -113,7 +68,6 @@ const EstimatesView = () => {
                   selected={selectedStory?.id === story?.id}
                   estimate={story?.estimate}
                   disabled={!isScrumMaster}
-                  onDelete={handleDeleteClick}
                   onClick={() => handleSelectStory(story?.id)}
                 />
               ))}
@@ -122,12 +76,7 @@ const EstimatesView = () => {
               <Divider />
             </Box>
             <Box px={2} my={2}>
-              <CurrentVotes
-                startTime={roundStart}
-                endTime={roundEnd}
-                title="Current votes:"
-                onClick={handleRevealVotes}
-              />
+              <CurrentVotes title="Current votes:" onClick={() => {}} />
             </Box>
             <Box px={2}>
               <Divider />
@@ -138,9 +87,6 @@ const EstimatesView = () => {
                 <EstimatesFooter
                   sessionId={sessionId}
                   buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
-                  confirmationMessage={
-                    isScrumMaster ? messages.endSession : messages.leaveSession
-                  }
                   onClick={
                     isScrumMaster ? handleEndSession : handleLeaveSession
                   }
@@ -151,6 +97,7 @@ const EstimatesView = () => {
         )}
       </FrameComponent>
 
+      {/* Dialog لإظهار QuilEditor */}
       <Dialog
         open={openQuilEditor}
         onClose={() => setOpenQuilEditor(false)}
@@ -160,39 +107,12 @@ const EstimatesView = () => {
         <QuilEditor
           sendData={addStory}
           onSubmit={() => setOpenQuilEditor(false)}
-          initial={{
-            title: "",
-            content:
-              "<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />",
-          }}
+          initial={{ title: "", content: "" }}
           buttonLabel="Save"
         />
       </Dialog>
-      <DeleteConfirmationDialog
-        open={openDelete}
-        onClose={() => handleCloseDelete()}
-        onConfirm={deleteStory}
-        itemName={selectedStory?.title}
-      />
     </>
   );
 };
 
 export default EstimatesView;
-
-const styles = `
-@keyframes blinkingEffect {
-    0% { opacity: 1; }
-    50% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-.blinking {
-    animation: blinkingEffect 1.5s infinite;
-}
-`;
-
-const styleSheet = document.createElement("style");
-styleSheet.type = "text/css";
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);

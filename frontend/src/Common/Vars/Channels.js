@@ -20,10 +20,6 @@ export const BACKEND_ACTIONS = {
   UPDATE_STORY: () => `/app/poker/story/update`,
   DELETE_STORY: () => `/app/poker/story/delete`,
   SELECT_STORY: () => `/app/poker/story/select`,
-  VOTE_STORY: () => `/app/poker/story/vote`,
-  REVEAL_VOTES: () => `/app/poker/story/reveal`,
-  ACCEPT_STORY: () => `/app/poker/story/accept`,
-  RESET_STORY: () => `/app/poker/story/reset`,
 };
 
 export const FRONTEND_ACTIONS = {};

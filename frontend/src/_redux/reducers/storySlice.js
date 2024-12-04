@@ -1,28 +1,39 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { userStories } from "../../Common/mockData";
 import { STATUS } from "../../Common/Vars/Constants";
+import {
+  addStorySocket,
+  selectStorySocket,
+} from "../../Common/Service/SessionService";
+import { getTokenData } from "../../Common/Utils/tokenUtils";
 
 // Async thunks for all operations
-export const fetchSessionStories = createAsyncThunk(
-  "story/fetchSessionStories",
-  async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return userStories;
-  }
-);
-
 export const selectStory = createAsyncThunk(
-  "story/selectStory",
-  async (storyId) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return storyId;
+  "session/selectStory",
+  async (storyId, { dispatch, rejectWithValue }) => {
+    return new Promise((resolve) => {
+      const request = {
+        sessionCode: getTokenData().sessionId,
+        userStoryId: storyId,
+      };
+      selectStorySocket(request, (error) => {
+        dispatch(clearSession());
+        rejectWithValue(error);
+      });
+    });
   }
 );
 
-export const addStory = createAsyncThunk("story/addStory", async (newStory) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return newStory;
-});
+export const addStory = createAsyncThunk(
+  "session/addStory",
+  async (request, { dispatch, rejectWithValue }) => {
+    return new Promise((resolve) => {
+      addStorySocket(request, (error) => {
+        dispatch(clearSession());
+        rejectWithValue(error);
+      });
+    });
+  }
+);
 
 export const updateStory = createAsyncThunk(
   "story/updateStory",
@@ -64,48 +75,17 @@ const initialState = {
 const storySlice = createSlice({
   name: "story",
   initialState,
-  reducers: {},
+  reducers: {
+    setStories(state, { payload: newStories }) {
+      state.stories = newStories;
+    },
+    setSelectedStoryId(state, { payload }) {
+      state.selectedStoryId = payload;
+    },
+  },
   extraReducers: (builder) => {
     // List of actions
     const asyncActions = [
-      {
-        action: fetchSessionStories,
-        onFulfilled: (state, { payload }) => {
-          state.stories = payload;
-          if (payload.length > 0) {
-            state.selectedStoryId = payload[0]?.id;
-          }
-        },
-      },
-      {
-        action: selectStory,
-        onFulfilled: (state, { payload }) => {
-          state.selectedStoryId = payload;
-        },
-      },
-      {
-        action: addStory,
-        onFulfilled: (state, { payload }) => {
-          state.stories.push(payload);
-        },
-      },
-      {
-        action: updateStory,
-        onFulfilled: (state, { payload }) => {
-          const index = state.stories.findIndex(
-            (story) => story.id === payload.id
-          );
-          if (index !== -1) {
-            state.stories[index] = payload;
-          }
-        },
-      },
-      {
-        action: removeStory,
-        onFulfilled: (state, { payload }) => {
-          state.stories = state.stories.filter((story) => story.id !== payload);
-        },
-      },
       {
         action: assignEstimate,
         onFulfilled: (state, { payload }) => {
@@ -143,4 +123,5 @@ const storySlice = createSlice({
   },
 });
 
+export const { setStories, setSelectedStoryId } = storySlice.actions;
 export default storySlice.reducer;
