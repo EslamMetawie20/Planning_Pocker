@@ -1,56 +1,29 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { STATUS } from "../../Common/Vars/Constants";
+import { removeToken, getTokenData } from "../../Common/Utils/tokenUtils";
 import {
-  removeToken,
-  generateToken,
-  getToken,
-  getTokenData,
-  getValidSessionFromToken,
-  setToken,
-} from "../../Common/Utils/tokenUtils";
-import {
-  createSessionSocket,
-  endSessionSocket,
-  joinSessionSocket,
-  leaveSessionSocket,
-  reconnectSessionSocket,
-} from "../../Common/Service/SessionService";
-import {
-  dispatchSessionData,
   handleFulfilled,
   handlePending,
   handleRejected,
-  handleSessionUpdates,
+  handleSessionResponse,
 } from "../../Common/Utils/sessionUtils";
-
-const initialState = {
-  sessionId: null,
-  token: null,
-  isScrumMaster: null,
-  status: STATUS.IDLE,
-  error: null,
-};
+import { sendMessage } from "./webSocketSlice";
+import { BACKEND_ACTIONS, TOPIC_PATHS } from "../../Common/Vars/Channels";
 
 export const createSession = createAsyncThunk(
   "session/createSession",
-  async (request, { dispatch, rejectWithValue }) => {
-    return new Promise((resolve) => {
-      createSessionSocket(
+  async (request, { dispatch }) => {
+    return new Promise(async (resolve, reject) => {
+      const destination = BACKEND_ACTIONS.CREATE_SESSION();
+      const subscription = TOPIC_PATHS.SESSION_CREATED();
+
+      handleSessionResponse(
+        dispatch,
+        destination,
+        subscription,
         request,
-        (data) => {
-          handleSessionUpdates(dispatch, data);
-        },
-        (data) => {
-          handleSessionUpdates(dispatch, data);
-          const { sessionId } = data;
-          const token = generateToken(data);
-          setToken(token);
-          resolve({ sessionId, token });
-        },
-        (error) => {
-          dispatch(clearSession());
-          rejectWithValue(error);
-        }
+        resolve,
+        reject
       );
     });
   }
@@ -58,23 +31,18 @@ export const createSession = createAsyncThunk(
 
 export const joinSession = createAsyncThunk(
   "session/joinSession",
-  async (request, { dispatch, rejectWithValue }) => {
-    return new Promise((resolve) => {
-      joinSessionSocket(
+  async (request, { dispatch }) => {
+    return new Promise(async (resolve, reject) => {
+      const destination = BACKEND_ACTIONS.JOIN_SESSION();
+      const subscription = TOPIC_PATHS.SESSION_JOINED();
+
+      handleSessionResponse(
+        dispatch,
+        destination,
+        subscription,
         request,
-        (data) => {
-          handleSessionUpdates(dispatch, data);
-        },
-        (data) => {
-          const { sessionId } = data;
-          const token = generateToken(data);
-          setToken(token);
-          resolve({ sessionId, token });
-        },
-        (error) => {
-          dispatch(clearSession());
-          rejectWithValue(error);
-        }
+        resolve,
+        reject
       );
     });
   }
@@ -82,25 +50,22 @@ export const joinSession = createAsyncThunk(
 
 export const connectSession = createAsyncThunk(
   "session/connectSession",
-  async (_, { dispatch, rejectWithValue }) => {
-    return new Promise((resolve) => {
+  async (_, { dispatch }) => {
+    return new Promise(async (resolve, reject) => {
       const { sessionId, memberId } = getTokenData();
-      const request = { sessionId, userId: memberId };
-      reconnectSessionSocket(
+      const request = { sessionCode: sessionId, userId: memberId };
+
+      const destination = BACKEND_ACTIONS.RECONNECT_SESSION();
+      const subscription = TOPIC_PATHS.SESSION_RECONNECTED();
+
+      handleSessionResponse(
+        dispatch,
+        destination,
+        subscription,
         request,
-        (data) => {
-          handleSessionUpdates(dispatch, data);
-        },
-        (data) => {
-          handleSessionUpdates(dispatch, data);
-          const { sessionId } = getTokenData();
-          const token = getToken();
-          resolve({ sessionId, token });
-        },
-        (error) => {
-          dispatch(clearSession());
-          rejectWithValue(error);
-        }
+        resolve,
+        reject,
+        true
       );
     });
   }
@@ -110,22 +75,17 @@ export const leaveSession = createAsyncThunk(
   "session/leaveSession",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      return new Promise((resolve, reject) => {
-        // Get sessionId and memberId from the token
+      return new Promise(() => {
         const { sessionId, memberId } = getTokenData();
 
         if (!sessionId || !memberId) {
           rejectWithValue("No session or member data available.");
           return;
         }
-
-        const request = { sessionId, userId: memberId };
-        leaveSessionSocket(request, (error) => {
-          if (error) {
-            reject(error || "Failed to leave the session.");
-            return;
-          }
-        });
+        const destination = BACKEND_ACTIONS.LEAVE_SESSION();
+        const request = { sessionCode: sessionId, userId: memberId };
+        const action = { destination, body: request };
+        dispatch(sendMessage(action));
         dispatch(clearSession());
       });
     } catch (error) {
@@ -138,8 +98,7 @@ export const endSession = createAsyncThunk(
   "session/endSession",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      return new Promise((resolve, reject) => {
-        // Get sessionId and memberId from the token
+      return new Promise(() => {
         const { sessionId, memberId } = getTokenData();
 
         if (!sessionId || !memberId) {
@@ -147,13 +106,10 @@ export const endSession = createAsyncThunk(
           return;
         }
 
-        const request = { sessionId, userId: memberId };
-        endSessionSocket(request, (error) => {
-          if (error) {
-            reject(error || "Failed to close the session.");
-            return;
-          }
-        });
+        const destination = BACKEND_ACTIONS.END_SESSION();
+        const request = { sessionCode: sessionId, userId: memberId };
+        const action = { destination, body: request };
+        dispatch(sendMessage(action));
         dispatch(clearSession());
       });
     } catch (error) {
@@ -162,19 +118,40 @@ export const endSession = createAsyncThunk(
   }
 );
 
+export const getSessions = createAsyncThunk(
+  "session/getSessions",
+  async (_, { dispatch }) => {
+    const action = { destination: BACKEND_ACTIONS.GET_SESSION_IDS(), body: {} };
+    dispatch(sendMessage(action));
+  }
+);
+
 const thunkReducers = [
   createSession,
   joinSession,
   connectSession,
+  // getSessions,
   // leaveSession,
   // endSession,
 ];
+
+const initialState = {
+  activeSessionIds: null,
+  sessionId: null,
+  token: null,
+  isScrumMaster: null,
+  status: STATUS.IDLE,
+  error: null,
+};
 
 const sessionSlice = createSlice({
   name: "session",
   initialState,
   reducers: {
-    setScrumMaster(state, payload) {
+    setActiveSessionIds(state, { payload }) {
+      state.activeSessionIds = payload;
+    },
+    setScrumMaster(state, { payload }) {
       state.isScrumMaster = payload;
     },
     clearSession(state) {
@@ -193,5 +170,6 @@ const sessionSlice = createSlice({
   },
 });
 
-export const { clearSession, setScrumMaster } = sessionSlice.actions;
+export const { setActiveSessionIds, clearSession, setScrumMaster } =
+  sessionSlice.actions;
 export default sessionSlice.reducer;

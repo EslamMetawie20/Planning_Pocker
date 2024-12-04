@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Button,
   TextField,
@@ -16,16 +16,22 @@ import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import { ChevronRight } from "@mui/icons-material";
 import GoogleAvatars from "../../Common/Vars/GoogleAvatars";
 import BoxHeader from "../../Components/Frames/BoxHeader";
-import { getSessionsSocket } from "../../Common/Service/SessionService";
-import { useDispatch } from "react-redux";
-import { joinSession } from "../../_redux/reducers/sessionSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getSessions,
+  joinSession,
+  setActiveSessionIds,
+} from "../../_redux/reducers/sessionSlice";
+import { TOPIC_PATHS } from "../../Common/Vars/Channels";
+import WebSocketManager from "../../Common/Config/WebSocketManager";
 
 function JoinSession() {
+  const { activeSessionIds } = useSelector((state) => state.session);
   const dispatch = useDispatch();
+
   const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
   const [name, setName] = useState("");
   const [sessionId, setSessionId] = useState("");
-  const [sessionIds, setSessionIds] = useState([]);
   const [errors, setErrors] = useState({
     name: false,
     sessionId: false,
@@ -46,7 +52,7 @@ function JoinSession() {
 
     if (!newErrors.name && !newErrors.sessionId) {
       const request = {
-        sessionId,
+        sessionCode: sessionId,
         userName: name,
         avatarIndex: currentAvatarIndex,
       };
@@ -54,16 +60,18 @@ function JoinSession() {
     }
   };
 
+  const subscribeGetSessions = useCallback(async () => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      WebSocketManager.subscribe(TOPIC_PATHS.SESSION_IDS_GET(), (data) => {
+        dispatch(setActiveSessionIds(data));
+      });
+      dispatch(getSessions());
+    }
+  }, [dispatch]);
+
   useEffect(() => {
-    getSessionsSocket(
-      (data) => {
-        setSessionIds(data);
-      },
-      (error) => {
-        console.error("Fehler bei : ", error);
-      }
-    );
-  }, []);
+    subscribeGetSessions();
+  }, [dispatch]);
 
   return (
     <Grid container>
@@ -133,7 +141,7 @@ function JoinSession() {
                 onChange={(e) => setSessionId(e.target.value)}
                 label="Session"
               >
-                {sessionIds.map((id) => (
+                {activeSessionIds?.map((id) => (
                   <MenuItem key={id} value={id}>
                     Session: {id}
                   </MenuItem>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import GoogleAvatars from "../Vars/GoogleAvatars";
-import { createSession} from "../../_redux/reducers/sessionSlice";
+import { createSession } from "../../_redux/reducers/sessionSlice";
 import { useDispatch } from "react-redux";
 
 const useCreateSession = () => {
@@ -24,7 +24,7 @@ const useCreateSession = () => {
 
   const handleSwap = () => {
     setCurrentAvatarIndex((prevIndex) =>
-        prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
+      prevIndex === GoogleAvatars.length - 1 ? 0 : prevIndex + 1
     );
   };
 
@@ -40,7 +40,6 @@ const useCreateSession = () => {
     }
   }, [initialStory]);
 
-
   const handleCreateSession = () => {
     const newErrors = {
       name: name.trim() === "",
@@ -49,12 +48,11 @@ const useCreateSession = () => {
 
     if (!newErrors.name) {
       const request = {
-        userName: name,  // Der API-Name scheint "userName" zu sein
+        userName: name,
         initialStoryTitle: initialStory?.title,
         initialStoryDescription: initialStory?.content,
         avatarIndex: currentAvatarIndex,
       };
-      console.log('Creating session with:', request);
       dispatch(createSession(request));
     }
   };

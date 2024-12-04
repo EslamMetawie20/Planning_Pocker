@@ -7,10 +7,12 @@ import useDosTheme from "./Common/Theme/useDosTheme.jsx";
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from "@emotion/react";
 import useWebSocketListener from "./Common/Hooks/useWebSocketListener.jsx";
+import useAccessControl from "./Common/Hooks/useAccessControl.jsx";
 import "./App.css";
 
 const App = () => {
   useWebSocketListener();
+  useAccessControl();
   return (
     <ThemeProvider theme={useDosTheme()}>
       <CssBaseline />
