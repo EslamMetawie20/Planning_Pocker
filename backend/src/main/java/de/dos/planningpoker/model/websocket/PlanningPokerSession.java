@@ -1,14 +1,14 @@
 package de.dos.planningpoker.model.websocket;
 
-import de.dos.planningpoker.enumeration.Role;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import de.dos.planningpoker.enumeration.Role;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
@@ -84,6 +84,10 @@ public class PlanningPokerSession {
 
     public void revealVotes() {
         votesRevealed = true;
+    }
+
+    public boolean getRevealStatus() {
+        return votesRevealed;
     }
 
     // Getter für databaseId

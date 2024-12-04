@@ -1,6 +1,14 @@
 package de.dos.planningpoker.controller;
 
-import de.dos.planningpoker.dto.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Controller;
+
+import de.dos.planningpoker.dto.ErrorResponse;
 import de.dos.planningpoker.dto.sessionDto.CloseSessionRequest;
 import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
 import de.dos.planningpoker.dto.sessionDto.JoinRequest;
@@ -18,13 +26,6 @@ import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.User;
 import de.dos.planningpoker.service.impl.SessionServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class PlanningPokerController {
     @SendTo("/topic/session/joined")
     public SessionResponse join(JoinRequest joinRequest) {
         SessionResponse response = sessionService.joinSession(joinRequest);
+        sendSessionState(joinRequest.getSessionCode());
         return response;
     }
 
@@ -63,6 +65,8 @@ public class PlanningPokerController {
                 .sessionId(session.getId())
                 .participants(new ArrayList<>(session.getUsers().values()))
                 .userStories(new ArrayList<>(session.getUserStories().values()))
+                .votes(session.getSessionVotes())
+                .currentUserStoryId(session.getCurrentUserStoryId())
                 .build();
     }
 
@@ -106,7 +110,6 @@ public class PlanningPokerController {
             return activeIds;
         } catch (Exception e) {
             System.err.println("BE: Error getting session IDs: " + e.getMessage());
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }

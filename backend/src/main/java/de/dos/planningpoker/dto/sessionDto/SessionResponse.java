@@ -16,5 +16,6 @@ public class SessionResponse {
     private String memberId;
     private List<User> participants;
     private List<Story> userStories;
+    private String currentUserStoryId;
     private List<Vote> votes;
 }

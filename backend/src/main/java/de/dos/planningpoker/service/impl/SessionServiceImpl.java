@@ -1,5 +1,15 @@
 package de.dos.planningpoker.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
 import de.dos.planningpoker.dto.sessionDto.JoinRequest;
 import de.dos.planningpoker.dto.sessionDto.SessionResponse;
@@ -14,20 +24,12 @@ import de.dos.planningpoker.model.websocket.User;
 import de.dos.planningpoker.model.websocket.Vote;
 import de.dos.planningpoker.repository.SessionRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @Service
 @Transactional
 public class SessionServiceImpl {
+
     private final SessionRepository sessionRepository;
     private final Map<String, PlanningPokerSession> activeSessions = new ConcurrentHashMap<>();
 
@@ -100,7 +102,10 @@ public class SessionServiceImpl {
                     .scrumMasterId(wsSession.getScrumMasterId())
                     .participants(new ArrayList<>(wsSession.getUsers().values()))
                     .userStories(new ArrayList<>(wsSession.getUserStories().values()))
+                    .votes(wsSession.getSessionVotes())
+                    .currentUserStoryId(wsSession.getCurrentUserStoryId())
                     .build();
+
         } catch (Exception e) {
             System.err.println("Error in joinSession: " + e.getMessage());
             e.printStackTrace();
@@ -117,7 +122,6 @@ public class SessionServiceImpl {
     }
 
     // ----------------------------------------------------------------------------------------------
-
     public List<String> getActiveSessionCodes() {
         try {
 
@@ -152,7 +156,6 @@ public class SessionServiceImpl {
     }
 
     // ----------------------------------------------------------------------------------------------
-
     public void addUserStory(String sessionCode, AddStoryRequest storyRequest) {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
 
