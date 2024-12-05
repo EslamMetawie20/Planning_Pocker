@@ -102,7 +102,7 @@ public class SessionServiceImpl {
                     .scrumMasterId(wsSession.getScrumMasterId())
                     .participants(new ArrayList<>(wsSession.getUsers().values()))
                     .userStories(new ArrayList<>(wsSession.getUserStories().values()))
-                    .votes(wsSession.getSessionVotes())
+                    .sessionVotes(wsSession.getSessionVotes())
                     .currentUserStoryId(wsSession.getCurrentUserStoryId())
                     .build();
 
@@ -190,7 +190,7 @@ public class SessionServiceImpl {
     public void voteUserStory(VoteStoryRequest request) {
         PlanningPokerSession wsSession = getSessionByCode(request.getSessionCode());
 
-        Vote vote = new Vote(request.getSessionCode(), request.getUserId(), 0, LocalDateTime.now());
+        Vote vote = new Vote(request.getSessionCode(), request.getUserId(), request.getEstimate(), LocalDateTime.now());
         wsSession.addVote(vote);
     }
 

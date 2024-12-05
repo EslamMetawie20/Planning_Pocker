@@ -17,5 +17,5 @@ public class SessionResponse {
     private List<User> participants;
     private List<Story> userStories;
     private String currentUserStoryId;
-    private List<Vote> votes;
+    private List<Vote> sessionVotes;
 }

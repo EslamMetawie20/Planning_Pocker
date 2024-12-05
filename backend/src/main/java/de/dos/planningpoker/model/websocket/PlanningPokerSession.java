@@ -79,6 +79,7 @@ public class PlanningPokerSession {
     }
 
     public void addVote(Vote vote) {
+        sessionVotes.removeIf(existingVote -> existingVote.getUserId().equals(vote.getUserId()));
         sessionVotes.add(vote);
     }
 

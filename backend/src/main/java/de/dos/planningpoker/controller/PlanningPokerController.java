@@ -66,7 +66,7 @@ public class PlanningPokerController {
                 .sessionId(session.getId())
                 .participants(new ArrayList<>(session.getUsers().values()))
                 .userStories(new ArrayList<>(session.getUserStories().values()))
-                .votes(session.getSessionVotes())
+                .sessionVotes(session.getSessionVotes())
                 .currentUserStoryId(session.getCurrentUserStoryId())
                 .build();
     }
