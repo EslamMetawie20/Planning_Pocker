@@ -169,7 +169,7 @@ function JoinSession() {
             mt: 2,
           }}
         >
-          JOIN2
+          JOIN
         </Button>
       </Grid>
     </Grid>

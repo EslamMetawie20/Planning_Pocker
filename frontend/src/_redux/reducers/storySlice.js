@@ -133,7 +133,6 @@ const storySlice = createSlice({
       },
     ];
 
-    // Add cases for each async action
     asyncActions.forEach(({ action, onFulfilled }) => {
       builder
         .addCase(action.pending, (state) => {
