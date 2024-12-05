@@ -37,6 +37,7 @@ public class PlanningPokerController {
     @SendTo("/topic/session/created")
     public SessionResponse createSession(CreateSessionRequest createSessionRequest) {
         SessionResponse response = sessionService.createSession(createSessionRequest);
+        sendSessionsList();
         return response;
     }
 
@@ -181,6 +182,11 @@ public class PlanningPokerController {
         }
         SessionState sessionState = new SessionState(session);
         messagingTemplate.convertAndSend("/topic/session/" + sessionCode + "/state", sessionState);
+    }
+
+    private void sendSessionsList() {
+        List<String> activeIds = sessionService.getActiveSessionCodes();
+        messagingTemplate.convertAndSend("/topic/session/ids", activeIds);
     }
 
     // private void sendParticipantsUpdate(SessionResponse session) {
