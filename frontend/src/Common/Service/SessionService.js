@@ -1,6 +1,4 @@
 import axios from "../Config/AxiosConfig";
-import WebSocketService from "../Config/WebSocketManager";
-import { BACKEND_ACTIONS } from "../Vars/Channels";
 
 export async function getActiveSessionsRequestAsync() {
   try {
@@ -21,27 +19,3 @@ export async function createSessionRequestAsync(request) {
     throw error;
   }
 }
-
-export const leaveSessionSocket = (request, onError) => {
-  WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.LEAVE_SESSION(), request);
-  }, onError);
-};
-
-export const endSessionSocket = (request, onError) => {
-  WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.END_SESSION(), request);
-  }, onError);
-};
-
-export const addStorySocket = (request, onError) => {
-  WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.ADD_STORY(), request);
-  }, onError);
-};
-
-export const selectStorySocket = (request, onError) => {
-  WebSocketService.connect(() => {
-    WebSocketService.sendMessage(BACKEND_ACTIONS.SELECT_STORY(), request);
-  }, onError);
-};

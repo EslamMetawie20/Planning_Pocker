@@ -1,53 +1,61 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { STATUS } from "../../Common/Vars/Constants";
-import {
-  addStorySocket,
-  selectStorySocket,
-} from "../../Common/Service/SessionService";
 import { getTokenData } from "../../Common/Utils/tokenUtils";
+import { sendMessage } from "./webSocketSlice";
+import WebSocketManager from "../../Common/Config/WebSocketManager";
+import { BACKEND_ACTIONS } from "../../Common/Vars/Channels";
 
 // Async thunks for all operations
 export const selectStory = createAsyncThunk(
   "session/selectStory",
-  async (storyId, { dispatch, rejectWithValue }) => {
-    return new Promise((resolve) => {
-      const request = {
-        sessionCode: getTokenData().sessionId,
-        userStoryId: storyId,
-      };
-      selectStorySocket(request, (error) => {
-        dispatch(clearSession());
-        rejectWithValue(error);
-      });
+  async (storyId, { dispatch }) => {
+    return new Promise(async () => {
+      if (await WebSocketManager.isFullyConnectedAsync()) {
+        const destination = BACKEND_ACTIONS.SELECT_STORY();
+        const request = {
+          sessionCode: getTokenData().sessionId,
+          userStoryId: storyId,
+        };
+
+        const action = { destination, body: request };
+        dispatch(sendMessage(action));
+      }
     });
   }
 );
 
 export const addStory = createAsyncThunk(
   "session/addStory",
-  async (request, { dispatch, rejectWithValue }) => {
-    return new Promise((resolve) => {
-      addStorySocket(request, (error) => {
-        dispatch(clearSession());
-        rejectWithValue(error);
-      });
+  async (request, { dispatch }) => {
+    return new Promise(async () => {
+      if (await WebSocketManager.isFullyConnectedAsync()) {
+        const destination = BACKEND_ACTIONS.ADD_STORY();
+        const action = { destination, body: request };
+        dispatch(sendMessage(action));
+      }
     });
   }
 );
 
 export const updateStory = createAsyncThunk(
   "story/updateStory",
-  async (updatedStory) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return updatedStory;
+  async (request, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.UPDATE_STORY();
+      const action = { destination, body: request };
+      dispatch(sendMessage(action));
+    }
   }
 );
 
 export const removeStory = createAsyncThunk(
   "story/removeStory",
-  async (storyId) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return storyId;
+  async (request, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.DELETE_STORY();
+      const action = { destination, body: request };
+      dispatch(sendMessage(action));
+    }
   }
 );
 
@@ -66,7 +74,7 @@ export const setMyVote = createAsyncThunk("story/setMyVote", async (vote) => {
 
 const initialState = {
   stories: [],
-  selectedStoryId: null,
+  selectedStory: null,
   myVote: null,
   status: STATUS.IDLE,
   error: null,
@@ -79,8 +87,8 @@ const storySlice = createSlice({
     setStories(state, { payload: newStories }) {
       state.stories = newStories;
     },
-    setSelectedStoryId(state, { payload }) {
-      state.selectedStoryId = payload;
+    setSelectedStory(state, { payload }) {
+      state.selectedStory = payload;
     },
   },
   extraReducers: (builder) => {
@@ -123,5 +131,5 @@ const storySlice = createSlice({
   },
 });
 
-export const { setStories, setSelectedStoryId } = storySlice.actions;
+export const { setStories, setSelectedStory } = storySlice.actions;
 export default storySlice.reducer;

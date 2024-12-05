@@ -13,6 +13,8 @@ import CardsView from "../CardsView/index.jsx";
 
 const StoryView = () => {
   const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
+  const sessionId = useSelector((state) => state.session.sessionId);
+
   const { status, selectedStory, handleUpdateStory } = useStories();
 
   const [openEditor, setOpenEditor] = useState(false);
@@ -26,7 +28,13 @@ const StoryView = () => {
   };
 
   const updateStory = (updatedStory) => {
-    handleUpdateStory(updatedStory);
+    const request = {
+      sessionCode: sessionId,
+      userStoryId: updatedStory?.id,
+      title: updatedStory?.title,
+      description: updatedStory?.content,
+    };
+    handleUpdateStory(request);
     handleCloseEditor();
   };
 

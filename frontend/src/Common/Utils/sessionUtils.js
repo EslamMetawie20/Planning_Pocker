@@ -1,9 +1,6 @@
 import { setMembers } from "../../_redux/reducers/memberSlice";
 import { clearSession } from "../../_redux/reducers/sessionSlice";
-import {
-  setSelectedStoryId,
-  setStories,
-} from "../../_redux/reducers/storySlice";
+import { setSelectedStory, setStories } from "../../_redux/reducers/storySlice";
 import { sendMessage } from "../../_redux/reducers/webSocketSlice";
 import WebSocketManager from "../Config/WebSocketManager";
 import { TOPIC_PATHS } from "../Vars/Channels";
@@ -20,7 +17,6 @@ function formatRoleString(role) {
 
 export const dispatchSessionData = (dispatch, data) => {
   const { userStories, participants, currentUserStoryId } = data;
-  let mappedCurrentStoryId = currentUserStoryId;
 
   if (userStories === null) userStories = [];
   // Dispatch addStory action for each story
@@ -46,10 +42,9 @@ export const dispatchSessionData = (dispatch, data) => {
 
   dispatch(setMembers(mappedMembers));
 
-  if (mappedCurrentStoryId === null && mappedStories?.length > 0)
-    mappedCurrentStoryId = mappedStories[0]?.id;
-
-  dispatch(setSelectedStoryId(mappedCurrentStoryId));
+  let story = mappedStories.find((story) => story.id === currentUserStoryId);
+  if (!story && mappedStories?.length > 0) story = mappedStories[0];
+  dispatch(setSelectedStory(story));
 };
 
 export const handleSessionUpdates = (dispatch, data) => {
@@ -93,7 +88,7 @@ export const handleSessionResponse = async (
     // Check if WebSocket is fully connected
     if (await WebSocketManager.isFullyConnectedAsync()) {
       // Subscribe to the session creation topic
-      WebSocketManager.subscribe(subscription, (data) => {
+      await WebSocketManager.subscribe(subscription, async (data) => {
         try {
           // Handle session updates and extract sessionId and token
           handleSessionUpdates(dispatch, data);
@@ -107,6 +102,13 @@ export const handleSessionResponse = async (
             setToken(token);
           }
 
+          await WebSocketManager.subscribe(
+            TOPIC_PATHS.SESSION_UPDATES(sessionId),
+            (data) => {
+              handleSessionUpdates(dispatch, data);
+            }
+          );
+
           WebSocketManager.unsubscribe(destination); // Unsubscribe to prevent duplicate handling
           resolve({ sessionId, token });
         } catch (error) {
@@ -114,10 +116,6 @@ export const handleSessionResponse = async (
           reject(error); // Reject if processing the message fails
         }
       });
-
-      WebSocketManager.subscribe(TOPIC_PATHS.SESSION_UPDATES(), (data) =>
-        handleSessionUpdates(dispatch, data)
-      );
 
       // Send the create session request via WebSocket
       const action = {

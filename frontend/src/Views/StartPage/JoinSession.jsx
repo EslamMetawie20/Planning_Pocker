@@ -62,9 +62,12 @@ function JoinSession() {
 
   const subscribeGetSessions = useCallback(async () => {
     if (await WebSocketManager.isFullyConnectedAsync()) {
-      WebSocketManager.subscribe(TOPIC_PATHS.SESSION_IDS_GET(), (data) => {
-        dispatch(setActiveSessionIds(data));
-      });
+      await WebSocketManager.subscribe(
+        TOPIC_PATHS.SESSION_IDS_GET(),
+        (data) => {
+          dispatch(setActiveSessionIds(data));
+        }
+      );
       dispatch(getSessions());
     }
   }, [dispatch]);

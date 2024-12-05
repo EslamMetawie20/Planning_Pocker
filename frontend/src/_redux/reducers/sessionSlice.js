@@ -9,6 +9,7 @@ import {
 } from "../../Common/Utils/sessionUtils";
 import { sendMessage } from "./webSocketSlice";
 import { BACKEND_ACTIONS, TOPIC_PATHS } from "../../Common/Vars/Channels";
+import WebSocketManager from "../../Common/Config/WebSocketManager";
 
 export const createSession = createAsyncThunk(
   "session/createSession",
@@ -75,18 +76,20 @@ export const leaveSession = createAsyncThunk(
   "session/leaveSession",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      return new Promise(() => {
-        const { sessionId, memberId } = getTokenData();
+      return new Promise(async () => {
+        if (await WebSocketManager.isFullyConnectedAsync()) {
+          const { sessionId, memberId } = getTokenData();
 
-        if (!sessionId || !memberId) {
-          rejectWithValue("No session or member data available.");
-          return;
+          if (!sessionId || !memberId) {
+            rejectWithValue("No session or member data available.");
+            return;
+          }
+          const destination = BACKEND_ACTIONS.LEAVE_SESSION();
+          const request = { sessionCode: sessionId, userId: memberId };
+          const action = { destination, body: request };
+          dispatch(sendMessage(action));
+          dispatch(clearSession());
         }
-        const destination = BACKEND_ACTIONS.LEAVE_SESSION();
-        const request = { sessionCode: sessionId, userId: memberId };
-        const action = { destination, body: request };
-        dispatch(sendMessage(action));
-        dispatch(clearSession());
       });
     } catch (error) {
       return rejectWithValue("Failed to leave the session.");
@@ -98,19 +101,21 @@ export const endSession = createAsyncThunk(
   "session/endSession",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      return new Promise(() => {
-        const { sessionId, memberId } = getTokenData();
+      return new Promise(async () => {
+        if (await WebSocketManager.isFullyConnectedAsync()) {
+          const { sessionId, memberId } = getTokenData();
 
-        if (!sessionId || !memberId) {
-          rejectWithValue("No session or member data available.");
-          return;
+          if (!sessionId || !memberId) {
+            rejectWithValue("No session or member data available.");
+            return;
+          }
+
+          const destination = BACKEND_ACTIONS.END_SESSION();
+          const request = { sessionCode: sessionId, userId: memberId };
+          const action = { destination, body: request };
+          dispatch(sendMessage(action));
+          dispatch(clearSession());
         }
-
-        const destination = BACKEND_ACTIONS.END_SESSION();
-        const request = { sessionCode: sessionId, userId: memberId };
-        const action = { destination, body: request };
-        dispatch(sendMessage(action));
-        dispatch(clearSession());
       });
     } catch (error) {
       return rejectWithValue("Failed to close the session.");
@@ -121,8 +126,13 @@ export const endSession = createAsyncThunk(
 export const getSessions = createAsyncThunk(
   "session/getSessions",
   async (_, { dispatch }) => {
-    const action = { destination: BACKEND_ACTIONS.GET_SESSION_IDS(), body: {} };
-    dispatch(sendMessage(action));
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const action = {
+        destination: BACKEND_ACTIONS.GET_SESSION_IDS(),
+        body: {},
+      };
+      dispatch(sendMessage(action));
+    }
   }
 );
 

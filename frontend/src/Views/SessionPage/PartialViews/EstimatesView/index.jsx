@@ -15,10 +15,17 @@ import {
   endSession,
   leaveSession,
 } from "../../../../_redux/reducers/sessionSlice.js";
+import DeleteConfirmationDialog from "./Components/DeleteConfirmationDialog.jsx";
 
 const EstimatesView = () => {
-  const { status, stories, selectedStory, handleSelectStory, handleAddStory } =
-    useStories();
+  const {
+    status,
+    stories,
+    selectedStory,
+    handleSelectStory,
+    handleAddStory,
+    handleDeleteStory,
+  } = useStories();
   const [openQuilEditor, setOpenQuilEditor] = useState(false);
   const dispatch = useDispatch();
   const sessionId = useSelector((state) => state.session.sessionId);
@@ -35,6 +42,23 @@ const EstimatesView = () => {
 
   const handleEndSession = () => {
     dispatch(endSession());
+  };
+
+  // --------------------------------------
+
+  const [openDelete, setOpenDelete] = useState(false);
+  const handleDeleteClick = () => {
+    setOpenDelete(true);
+  };
+
+  const handleCloseDelete = () => {
+    setOpenDelete(false);
+  };
+
+  const deleteStory = () => {
+    const request = { sessionCode: sessionId, userStoryId: selectedStory?.id };
+    handleDeleteStory(request);
+    handleCloseDelete();
   };
 
   return (
@@ -68,6 +92,7 @@ const EstimatesView = () => {
                   selected={selectedStory?.id === story?.id}
                   estimate={story?.estimate}
                   disabled={!isScrumMaster}
+                  onDelete={handleDeleteClick}
                   onClick={() => handleSelectStory(story?.id)}
                 />
               ))}
@@ -111,6 +136,12 @@ const EstimatesView = () => {
           buttonLabel="Save"
         />
       </Dialog>
+      <DeleteConfirmationDialog
+        open={openDelete}
+        onClose={() => handleCloseDelete()}
+        onConfirm={deleteStory}
+        itemName={selectedStory?.title}
+      />
     </>
   );
 };

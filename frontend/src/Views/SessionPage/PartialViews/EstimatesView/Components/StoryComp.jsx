@@ -1,5 +1,9 @@
-import { BookmarkAdded, BookmarkBorderOutlined } from "@mui/icons-material";
-import { Stack, Typography, useTheme } from "@mui/material";
+import {
+  BookmarkAdded,
+  BookmarkBorderOutlined,
+  DoNotDisturbOnOutlined,
+} from "@mui/icons-material";
+import { IconButton, Stack, Typography, useTheme } from "@mui/material";
 import React from "react";
 import PropTypes from "prop-types";
 
@@ -9,6 +13,7 @@ const StoryComp = ({
   estimate = 0,
   disabled = false,
   onClick = () => {},
+  onDelete = () => {},
 }) => {
   const theme = useTheme();
   return (
@@ -34,6 +39,19 @@ const StoryComp = ({
         },
       }}
     >
+      {!disabled && selected && estimate === 0 && (
+        <IconButton
+          sx={{
+            padding: "0",
+            height: "fit-content",
+            width: "fit-content",
+            minWidth: "unset",
+          }}
+          onClick={onDelete}
+        >
+          <DoNotDisturbOnOutlined sx={{ height: "1rem", width: "1rem" }} />
+        </IconButton>
+      )}
       <Stack direction={"row"} spacing={1} alignItems={"center"} width={"100%"}>
         {estimate !== 0 ? (
           <BookmarkAdded color="secondary" />
@@ -70,6 +88,7 @@ StoryComp.prototypes = {
   estimate: PropTypes.number,
   disabled: PropTypes.bool,
   onClick: PropTypes.func,
+  ondDelete: PropTypes.func,
 };
 
 export default StoryComp;
