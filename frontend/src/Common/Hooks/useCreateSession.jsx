@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import GoogleAvatars from "../Vars/GoogleAvatars";
 import { createSession } from "../../_redux/reducers/sessionSlice";
 import { useDispatch } from "react-redux";
+import { DEFAULT_STORY } from "../Vars/DefaultData";
 
 const useCreateSession = () => {
   const [openQuilEditor, setOpenQuilEditor] = useState(false);
@@ -49,8 +50,9 @@ const useCreateSession = () => {
     if (!newErrors.name) {
       const request = {
         userName: name,
-        initialStoryTitle: initialStory?.title,
-        initialStoryDescription: initialStory?.content,
+        initialStoryTitle: initialStory?.title ?? DEFAULT_STORY?.title,
+        initialStoryDescription:
+          initialStory?.content ?? DEFAULT_STORY?.content,
         avatarIndex: currentAvatarIndex,
       };
       dispatch(createSession(request));

@@ -11,20 +11,10 @@ const useAccessControl = () => {
   const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
 
   useEffect(() => {
-    const {
-      sessionId: savedSessionId,
-      scrumMasterId,
-      memberId,
-    } = getTokenData() || {};
-
-    if (!savedSessionId) {
-      return;
-    }
-
+    const tokenData = getTokenData();
     if (
-      savedSessionId === sessionId &&
-      scrumMasterId === memberId &&
-      !isScrumMaster
+      tokenData?.sessionId === sessionId &&
+      tokenData?.memberId === tokenData?.scrumMasterId
     ) {
       dispatch(setScrumMaster(true));
     } else if (isScrumMaster) {
