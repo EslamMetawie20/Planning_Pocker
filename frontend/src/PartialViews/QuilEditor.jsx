@@ -16,7 +16,6 @@ function QuilEditor({
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
-    // تعديل للتخلص من الزر الخاص بالصورة وأي أدوات غير ضرورية
     const modules = useMemo(
         () => ({
             toolbar: [
@@ -26,7 +25,7 @@ function QuilEditor({
                 [{ font: [] }],
                 [{ align: ["right", "center", "justify"] }],
                 [{ list: "ordered" }, { list: "bullet" }],
-                ["link"], // إزالة "image" من هنا
+                ["link"],
                 [{ color: ["red", "#785412"] }],
                 [{ background: ["red", "#785412"] }],
             ],
