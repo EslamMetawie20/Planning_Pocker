@@ -77,14 +77,23 @@ export const sendVote = createAsyncThunk(
     }
   }
 );
-
+export const revealVotes = createAsyncThunk(
+    "story/revealVotes",
+    async (_, { dispatch }) => {
+        if (await WebSocketManager.isFullyConnectedAsync()) {
+            const destination = BACKEND_ACTIONS.REVEAL_VOTES();
+            const action = { destination, body: { sessionId: getTokenData().sessionId } };
+            dispatch(sendMessage(action));
+        }
+    }
+);
 const initialState = {
   stories: [],
   selectedStory: null,
   votes: null,
   myVote: null,
-  votesRevealed: false,
-  status: STATUS.IDLE,
+    votesRevealed: false,
+    status: STATUS.IDLE,
   error: null,
 };
 
@@ -142,6 +151,6 @@ const storySlice = createSlice({
   },
 });
 
-export const { setVotes, setMyVote, setStories, setSelectedStory } =
+export const { setVotes, setMyVote, setStories, setSelectedStory , setVotesRevealed } =
   storySlice.actions;
 export default storySlice.reducer;

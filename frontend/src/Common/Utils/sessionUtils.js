@@ -1,5 +1,8 @@
 import { setMembers } from "../../_redux/reducers/memberSlice";
 import { clearSession } from "../../_redux/reducers/sessionSlice";
+import { setVotesRevealed } from "../../_redux/reducers/storySlice";
+
+
 import {
   setSelectedStory,
   setStories,
@@ -60,6 +63,8 @@ export const dispatchSessionData = (dispatch, data) => {
     estimation: vote?.estimation,
   }));
   dispatch(setVotes(mappedVotes));
+  dispatch(setVotesRevealed(true));
+
 };
 
 export const handleSessionUpdates = (dispatch, data) => {

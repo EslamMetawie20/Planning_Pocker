@@ -21,6 +21,7 @@ export const BACKEND_ACTIONS = {
   DELETE_STORY: () => `/app/poker/story/delete`,
   SELECT_STORY: () => `/app/poker/story/select`,
   VOTE_STORY: () => `/app/poker/story/vote`,
+  REVEAL_VOTES: () => `/app/poker/story/reveal`,
 };
 
 export const FRONTEND_ACTIONS = {};

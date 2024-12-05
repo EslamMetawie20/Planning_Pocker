@@ -10,6 +10,7 @@ import { getTokenData } from "../../../../Common/Utils/tokenUtils";
 const MembersView = () => {
     const { members, status } = useSelector((state) => state.member);
     const votes = useSelector((state) => state.story.votes);
+    const votesRevealed = useSelector((state) => state.story.votesRevealed);
     const tokenData = getTokenData();
     const currentMemberId = tokenData?.memberId;
 
@@ -33,11 +34,11 @@ const MembersView = () => {
                         <MemberComponent
                             noVote={item?.role === "Scrum Master"}
                             key={index + item?.name}
-                            name={item.isCurrent ? "YOU" : item?.name}
+                            name={item.isCurrent ? item?.name + " ⭐" : item?.name}
                             role={item?.role}
+                            revealed={votesRevealed}
                             vote={
-                                votes?.find((vote) => vote?.memberId === item?.id)
-                                    ?.estimation || 0
+                                votes?.find((vote) => vote?.memberId === item?.id)?.estimation || 0
                             }
                             avatarIndex={item?.avatarIndex}
                             voted={
