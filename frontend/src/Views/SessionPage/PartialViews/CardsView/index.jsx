@@ -1,12 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { FIBONACCI } from "../../../../Common/Vars/Constants";
-import { Stack } from "@mui/material";
+import { Stack, useMediaQuery } from "@mui/material";
 import PlayingCard from "./Components/PlayingCard";
 import { useDispatch, useSelector } from "react-redux";
 import { sendVote, setMyVote } from "../../../../_redux/reducers/storySlice";
 import { getTokenData } from "./../../../../Common/Utils/tokenUtils";
 
 const CardsView = () => {
+  const isLargeScreen = useMediaQuery("(max-width:1660px)");
+  const isMediumScreen = useMediaQuery("(max-width:1180px)");
+  const isSmallScreen = useMediaQuery("(max-width:960px)");
+  const isExtraSmallScreen = useMediaQuery("(max-width:850px)");
+
+  let spacing = -2; // Default spacing
+  if (isLargeScreen) spacing = -4;
+  if (isMediumScreen) spacing = -6;
+  if (isSmallScreen) spacing = -7;
+  if (isExtraSmallScreen) spacing = -10;
+
   const dispatch = useDispatch();
   const [selectedCard, setSelectedCard] = useState(0);
   const [votingDisabled, setVotingDisabled] = useState(false);
@@ -53,7 +64,7 @@ const CardsView = () => {
   return (
     <Stack
       direction="row"
-      spacing={0.25}
+      spacing={spacing}
       alignItems="flex-end"
       justifyContent="center"
     >
