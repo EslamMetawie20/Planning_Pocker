@@ -1,6 +1,10 @@
 import { setMembers } from "../../_redux/reducers/memberSlice";
 import { clearSession } from "../../_redux/reducers/sessionSlice";
-import { setSelectedStory, setStories } from "../../_redux/reducers/storySlice";
+import {
+  setSelectedStory,
+  setStories,
+  setVotes,
+} from "../../_redux/reducers/storySlice";
 import { sendMessage } from "../../_redux/reducers/webSocketSlice";
 import WebSocketManager from "../Config/WebSocketManager";
 import { TOPIC_PATHS } from "../Vars/Channels";
@@ -16,11 +20,14 @@ function formatRoleString(role) {
 }
 
 export const dispatchSessionData = (dispatch, data) => {
-  const { userStories, participants, currentUserStoryId } = data;
+  const { userStories, participants, currentUserStoryId, sessionVotes } = data;
+  let stories = userStories;
+  let members = participants;
+  let votes = sessionVotes;
 
-  if (userStories === null) userStories = [];
+  if (stories === null) stories = [];
   // Dispatch addStory action for each story
-  const mappedStories = userStories.map((story) => ({
+  const mappedStories = stories.map((story) => ({
     id: story?.id,
     title: story?.title,
     estimate: story?.estimate || 0,
@@ -29,9 +36,9 @@ export const dispatchSessionData = (dispatch, data) => {
 
   dispatch(setStories(mappedStories));
 
-  if (participants === null) participants = [];
+  if (members === null) members = [];
   // Dispatch addMember action for each member
-  const mappedMembers = participants.map((member) => ({
+  const mappedMembers = members.map((member) => ({
     id: member?.id,
     name: member?.name,
     avatarIndex: member?.avatarIndex ?? 0,
@@ -45,6 +52,14 @@ export const dispatchSessionData = (dispatch, data) => {
   let story = mappedStories.find((story) => story.id === currentUserStoryId);
   if (!story && mappedStories?.length > 0) story = mappedStories[0];
   dispatch(setSelectedStory(story));
+
+  // ----------------------------------------------------------------------------
+  if (votes === null) votes = [];
+  const mappedVotes = votes?.map((vote) => ({
+    memberId: vote?.userId,
+    estimation: vote?.estimation,
+  }));
+  dispatch(setVotes(mappedVotes));
 };
 
 export const handleSessionUpdates = (dispatch, data) => {

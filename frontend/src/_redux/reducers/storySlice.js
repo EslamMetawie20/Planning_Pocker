@@ -67,15 +67,23 @@ export const assignEstimate = createAsyncThunk(
   }
 );
 
-export const setMyVote = createAsyncThunk("story/setMyVote", async (vote) => {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return vote;
-});
+export const sendVote = createAsyncThunk(
+  "story/sendVote",
+  async (request, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.VOTE_STORY();
+      const action = { destination, body: request };
+      dispatch(sendMessage(action));
+    }
+  }
+);
 
 const initialState = {
   stories: [],
   selectedStory: null,
+  votes: null,
   myVote: null,
+  votesRevealed: false,
   status: STATUS.IDLE,
   error: null,
 };
@@ -87,8 +95,17 @@ const storySlice = createSlice({
     setStories(state, { payload: newStories }) {
       state.stories = newStories;
     },
+    setVotes(state, { payload: newVotes }) {
+      state.votes = newVotes;
+    },
+    setMyVote(state, { payload: vote }) {
+      state.myVote = vote;
+    },
     setSelectedStory(state, { payload }) {
       state.selectedStory = payload;
+    },
+    setVotesRevealed(state, { payload }) {
+      state.votesRevealed = payload;
     },
   },
   extraReducers: (builder) => {
@@ -103,12 +120,6 @@ const storySlice = createSlice({
           if (story) {
             story.estimate = payload.estimate;
           }
-        },
-      },
-      {
-        action: setMyVote,
-        onFulfilled: (state, { payload }) => {
-          state.myVote = payload;
         },
       },
     ];
@@ -131,5 +142,6 @@ const storySlice = createSlice({
   },
 });
 
-export const { setStories, setSelectedStory } = storySlice.actions;
+export const { setVotes, setMyVote, setStories, setSelectedStory } =
+  storySlice.actions;
 export default storySlice.reducer;
