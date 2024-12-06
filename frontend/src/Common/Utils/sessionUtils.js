@@ -23,7 +23,8 @@ function formatRoleString(role) {
 }
 
 export const dispatchSessionData = (dispatch, data) => {
-  const { userStories, participants, currentUserStoryId, sessionVotes } = data;
+  console.log(data);
+  const { userStories, participants, currentUserStoryId, sessionVotes, votesRevealed } = data;
   let stories = userStories;
   let members = participants;
   let votes = sessionVotes;
@@ -63,7 +64,9 @@ export const dispatchSessionData = (dispatch, data) => {
     estimation: vote?.estimation,
   }));
   dispatch(setVotes(mappedVotes));
-  dispatch(setVotesRevealed(true));
+
+  // ---------------------
+  dispatch(setVotesRevealed(votesRevealed));
 
 };
 

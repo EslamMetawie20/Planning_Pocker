@@ -82,7 +82,7 @@ export const revealVotes = createAsyncThunk(
     async (_, { dispatch }) => {
         if (await WebSocketManager.isFullyConnectedAsync()) {
             const destination = BACKEND_ACTIONS.REVEAL_VOTES();      // <-----  <---
-            const action = { destination, body: { sessionId: getTokenData().sessionId } };
+            const action = { destination, body: { sessionCode: getTokenData().sessionId } };
             dispatch(sendMessage(action));
         }
     }

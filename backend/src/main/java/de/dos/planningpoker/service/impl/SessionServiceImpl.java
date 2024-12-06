@@ -103,6 +103,7 @@ public class SessionServiceImpl {
                     .participants(new ArrayList<>(wsSession.getUsers().values()))
                     .userStories(new ArrayList<>(wsSession.getUserStories().values()))
                     .sessionVotes(wsSession.getSessionVotes())
+                    .voteRevealed(wsSession.isVotesRevealed())
                     .currentUserStoryId(wsSession.getCurrentUserStoryId())
                     .build();
 

@@ -16,6 +16,7 @@ import {
   endSession,
   leaveSession,
 } from "../../../../_redux/reducers/sessionSlice.js";
+import  { revealVotes } from  "../../../../_redux/reducers/storySlice.js";
 import DeleteConfirmationDialog from "./Components/DeleteConfirmationDialog.jsx";
 
 const EstimatesView = () => {
@@ -29,15 +30,16 @@ const EstimatesView = () => {
   } = useStories();
   const [openQuilEditor, setOpenQuilEditor] = useState(false);
   const dispatch = useDispatch();
-  const sessionId = useSelector((state) => state.session.sessionId);
-  const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
+  const { sessionId, isScrumMaster } = useSelector((state) => state.session);
 
   const addStory = (title, content) => {
     handleAddStory(title, content);
     setOpenQuilEditor(false);
   };
 
-
+  const handleRevealVotes = ()=>{
+    dispatch(revealVotes())
+  }
 
   const handleLeaveSession = () => {
     dispatch(leaveSession());
@@ -114,7 +116,7 @@ const EstimatesView = () => {
               <Divider />
             </Box>
             <Box px={2} my={2}>
-              <CurrentVotes title="Current votes:" onClick={() => {}} />
+              <CurrentVotes title="Current votes:" onClick={handleRevealVotes} />
             </Box>
             <Box px={2}>
               <Divider />

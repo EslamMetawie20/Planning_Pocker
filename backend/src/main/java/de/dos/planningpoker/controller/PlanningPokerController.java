@@ -3,19 +3,13 @@ package de.dos.planningpoker.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.dos.planningpoker.dto.sessionDto.*;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import de.dos.planningpoker.dto.ErrorResponse;
-import de.dos.planningpoker.dto.sessionDto.CloseSessionRequest;
-import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
-import de.dos.planningpoker.dto.sessionDto.JoinRequest;
-import de.dos.planningpoker.dto.sessionDto.LeaveRequest;
-import de.dos.planningpoker.dto.sessionDto.ReconnectRequest;
-import de.dos.planningpoker.dto.sessionDto.SessionResponse;
-import de.dos.planningpoker.dto.sessionDto.SessionState;
 import de.dos.planningpoker.dto.storyDto.AcceptStoryRequest;
 import de.dos.planningpoker.dto.storyDto.AddStoryRequest;
 import de.dos.planningpoker.dto.storyDto.DeleteStoryRequest;
@@ -67,6 +61,7 @@ public class PlanningPokerController {
                 .participants(new ArrayList<>(session.getUsers().values()))
                 .userStories(new ArrayList<>(session.getUserStories().values()))
                 .sessionVotes(session.getSessionVotes())
+                .voteRevealed(session.isVotesRevealed())
                 .currentUserStoryId(session.getCurrentUserStoryId())
                 .build();
     }
@@ -150,15 +145,15 @@ public class PlanningPokerController {
     }
 
     @MessageMapping("/poker/story/reveal")
-    public void revealStoryVotes(String sessionCode) {
-        sessionService.revealSessionVotes(sessionCode);
-        sendSessionState(sessionCode);
+    public void revealStoryVotes(SessionRequest request) {
+        sessionService.revealSessionVotes(request.getSessionCode());
+        sendSessionState(request.getSessionCode());
     }
 
     @MessageMapping("/poker/story/clear")
-    public void resetStoryRound(String sessionCode) {
-        sessionService.resetSessionRound(sessionCode);
-        sendSessionState(sessionCode);
+    public void resetStoryRound(SessionRequest request) {
+        sessionService.resetSessionRound(request.getSessionCode());
+        sendSessionState(request.getSessionCode());
     }
 
     @MessageMapping("/poker/story/accept")

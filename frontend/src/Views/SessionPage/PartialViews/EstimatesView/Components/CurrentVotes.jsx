@@ -17,13 +17,14 @@ const CurrentVotes = ({
   const selectVotesAndMembers = createSelector(
       (state) => state.story.votes,
       (state) => state.member.members,
-      (votes, members) => ({ votes, members })
+      (state) => state.story.votesRevealed,
+      (votes, members, votesRevealed) => ({ votes, members, votesRevealed })
   );
 
-  const { votes, members } = useSelector(selectVotesAndMembers);
+  const { votes, members, votesRevealed } = useSelector(selectVotesAndMembers);
 
   const isScrumMaster = useSelector((state) => state.session.isScrumMaster);
-  const allVoted = votes?.length === members?.length;
+  const allVoted = votes?.length === members?.length - 1;
 
   return (
       <Box>
@@ -36,10 +37,10 @@ const CurrentVotes = ({
           {onClick && isScrumMaster && (
               <Button
                   size="small"
-                  variant="outlined"
+                  variant={allVoted ? "contained" : "outlined"}
                   color={allVoted ? "success" : "primary.light"}
                   onClick={allVoted ? onClick : undefined}
-                  disabled={!allVoted}
+                  disabled={!allVoted || votesRevealed}
               >
                 Reveal Votes
               </Button>

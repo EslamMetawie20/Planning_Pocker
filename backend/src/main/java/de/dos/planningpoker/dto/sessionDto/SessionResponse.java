@@ -18,4 +18,5 @@ public class SessionResponse {
     private List<Story> userStories;
     private String currentUserStoryId;
     private List<Vote> sessionVotes;
+    private boolean voteRevealed;
 }
