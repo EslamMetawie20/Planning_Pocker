@@ -86,13 +86,15 @@ public class PlanningPokerController {
         if (session == null || !session.isActive()) {
             return;
         }
-        // If user is not Scrum Master, they can't close the session
+
         if (!session.getScrumMasterId().equals(request.getUserId())) {
             sendErrorToUser(request.getUserId(), "Only Scrum Master can close the session");
             return;
         }
 
+        // Service kümmert sich um Datenbankpersistenz und Entfernen der Session
         sessionService.removeSession(request.getSessionCode());
+
         sendSessionState(request.getSessionCode());
     }
 
@@ -158,7 +160,7 @@ public class PlanningPokerController {
 
     @MessageMapping("/poker/story/accept")
     public void acceptStoryVotes(AcceptStoryRequest request) {
-        sessionService.selectUserStory(request.getSessionCode(), request.getUserStoryId());
+        sessionService.acceptUserStory(request.getSessionCode(), request.getUserStoryId(), request.getEstimate());
         sendSessionState(request.getSessionCode());
     }
 

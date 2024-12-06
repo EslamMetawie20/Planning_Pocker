@@ -10,4 +10,5 @@ public class Story {
     private String title;
     private String description;
     private boolean accepted;
+    private int estimate;
 }

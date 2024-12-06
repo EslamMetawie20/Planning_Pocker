@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class AcceptStoryRequest {
     private String sessionCode;
     private String userStoryId;
+    private int estimate;
 }

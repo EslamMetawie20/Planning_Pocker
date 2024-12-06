@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.dos.planningpoker.model.entity.UserStory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,37 +36,37 @@ public class SessionServiceImpl {
 
     public SessionResponse createSession(CreateSessionRequest request) {
         try {
-            // 1. Create database entities
-            Session sessionEntity = new Session();
+            // Generate session code
             String sessionCode = UUID.randomUUID().toString().substring(0, 8);
-            sessionEntity.setSessionCode(sessionCode);
-            sessionEntity.setActive(true);
 
-            // Save to database and flush
-            sessionEntity = sessionRepository.saveAndFlush(sessionEntity);
+            // Create WebSocket session
+            PlanningPokerSession wsSession = new PlanningPokerSession(sessionCode);
 
-            // 2. Create WebSocket session
+            // Create Scrum Master
             User scrumMaster = new User(
                     UUID.randomUUID().toString(),
                     request.getUserName(),
                     Role.SCRUM_MASTER,
-                    sessionCode);
+                    sessionCode
+            );
 
-            PlanningPokerSession wsSession = new PlanningPokerSession(sessionCode);
-
-            // Create initial user story only if title is provided
+            // Add initial user story if provided
             if (request.getInitialStoryTitle() != null && !request.getInitialStoryTitle().trim().isEmpty()) {
                 String storyId = UUID.randomUUID().toString().substring(0, 8);
-                Story story = new Story(storyId, request.getInitialStoryTitle(), request.getInitialStoryDescription(),
-                        false);
+                Story story = new Story(
+                        storyId,
+                        request.getInitialStoryTitle(),
+                        request.getInitialStoryDescription(),
+                        false,0
+                );
                 wsSession.putUserStory(story);
             }
 
+            // Add Scrum Master to session and store in memory
             wsSession.addUser(scrumMaster);
-            wsSession.setDatabaseId(sessionEntity.getId());
             activeSessions.put(sessionCode, wsSession);
 
-            // 3. Return response
+            // Return response
             return SessionResponse.builder()
                     .sessionId(sessionCode)
                     .memberId(scrumMaster.getId())
@@ -80,7 +81,6 @@ public class SessionServiceImpl {
             throw new RuntimeException("Failed to create session", e);
         }
     }
-
     public SessionResponse joinSession(JoinRequest request) {
         try {
             // 1. Validiere und hole Session
@@ -114,14 +114,38 @@ public class SessionServiceImpl {
         }
     }
 
+
     public void removeSession(String sessionCode) {
         try {
-            activeSessions.remove(sessionCode);
+            // Hole die Session aus dem Speicher
+            PlanningPokerSession wsSession = activeSessions.get(sessionCode);
+            if (wsSession != null) {
+                // Erstelle Session Entity
+                Session sessionEntity = new Session();
+                sessionEntity.setSessionCode(sessionCode);
+                sessionEntity.setActive(false);
+
+                // Kopiere alle User Stories von der In-Memory Session
+                for (Story wsStory : wsSession.getUserStories().values()) {
+                    UserStory storyEntity = new UserStory();
+                    storyEntity.setTitle(wsStory.getTitle());
+                    storyEntity.setDescription(wsStory.getDescription());
+                    storyEntity.setEstimation(wsStory.getEstimate());
+                    // Verknüpfe Story mit Session
+                    sessionEntity.addUserStory(storyEntity);
+                }
+
+                // Speichere alles in der Datenbank
+                sessionRepository.save(sessionEntity);
+
+                // Zum Schluss aus dem Speicher entfernen
+                activeSessions.remove(sessionCode);
+            }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Failed to remove and save session: " + e.getMessage(), e);
         }
     }
-
     // ----------------------------------------------------------------------------------------------
     public List<String> getActiveSessionCodes() {
         try {
@@ -161,7 +185,7 @@ public class SessionServiceImpl {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
 
         String storyId = UUID.randomUUID().toString().substring(0, 8);
-        Story story = new Story(storyId, storyRequest.getTitle(), storyRequest.getDescription(), false);
+        Story story = new Story(storyId, storyRequest.getTitle(), storyRequest.getDescription(), false,0);
         wsSession.putUserStory(story);
     }
 
@@ -169,7 +193,7 @@ public class SessionServiceImpl {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
 
         Story story = new Story(storyRequest.getUserStoryId(), storyRequest.getTitle(), storyRequest.getDescription(),
-                false);
+                false,0);
         wsSession.putUserStory(story);
     }
 
@@ -183,9 +207,10 @@ public class SessionServiceImpl {
         wsSession.setCurrentUserStory(storyId);
     }
 
-    public void acceptUserStory(String sessionCode, String storyId) {
+    public void acceptUserStory(String sessionCode, String storyId, int estimate ) {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
-        wsSession.setCurrentUserStory(storyId);
+        Story selectedStory = wsSession.getUserStories().get(storyId);
+        selectedStory.setEstimate(estimate);
     }
 
     public void voteUserStory(VoteStoryRequest request) {

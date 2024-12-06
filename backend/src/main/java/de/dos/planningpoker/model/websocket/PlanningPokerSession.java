@@ -53,8 +53,9 @@ public class PlanningPokerSession {
         resetRound();
     }
 
-    public void acceptUserStory(String storyId) {
+    public void acceptUserStory(String storyId, int estimate) {
         Story story = userStories.get(storyId);
+        story.setEstimate(estimate);
         story.setAccepted(true);
         resetRound();
     }
