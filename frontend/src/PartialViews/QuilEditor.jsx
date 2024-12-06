@@ -66,10 +66,14 @@ function QuilEditor({
         alert("Story saved successfully!");
     };
 
+
     useEffect(() => {
         if (initial?.title && initial.content) {
             setTitle(initial.title);
             setContent(initial.content);
+        } else {
+            setTitle("Add title here ");
+            setContent("<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />");
         }
     }, [initial]);
 

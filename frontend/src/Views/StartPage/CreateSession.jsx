@@ -30,10 +30,15 @@ function CreateSession() {
     openQuilEditor,
     errors,
     getQuillData,
-    initialStory,
   } = useCreateSession();
+    const initialStory = {
+        title: "Add title here",
+        content: "<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />" ,
 
-  return (
+    };
+
+
+    return (
     <Grid
       container
       sx={{
@@ -140,11 +145,11 @@ function CreateSession() {
         fullWidth
       >
         <Box p={1}>
-          <QuilEditor
-            initial={initialStory}
-            sendData={getQuillData}
-            onSubmit={handleCloseQuilEditor}
-          />
+            <QuilEditor
+                initial={initialStory}
+                sendData={getQuillData}
+                onSubmit={handleCloseQuilEditor}
+            />
         </Box>
       </Dialog>
     </Grid>

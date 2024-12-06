@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import FrameComponent from "../../../../Components/Frames/FrameComponent";
 import { Divider, IconButton, Stack, Dialog, Box } from "@mui/material";
 import { AddCircleOutline } from "@mui/icons-material";
@@ -36,6 +37,8 @@ const EstimatesView = () => {
     setOpenQuilEditor(false);
   };
 
+
+
   const handleLeaveSession = () => {
     dispatch(leaveSession());
   };
@@ -69,104 +72,106 @@ const EstimatesView = () => {
   }, [isScrumMaster, stories.length]);
 
   return (
-      <>
-        <FrameComponent
-            paperSx={{
-              flex: 1,
-            }}
-            sx={{
-              paddingY: 1,
-              paddingX: 0,
-            }}
-            title={"User stories"}
-            icon={
-                isScrumMaster && (
-                    <IconButton
-                        onClick={() => setOpenQuilEditor(true)}
-                        className={blinking ? "blinking" : ""}
-                    >
-                      <AddCircleOutline color="secondary" fontSize="small" />
-                    </IconButton>
-                )
-            }
-        >
-          {status === STATUS.LOADING ? (
-              <LoaderComp />
-          ) : (
-              <Stack height={"100%"}>
-                <Stack spacing={1} height={"25%"} overflow={"auto"} paddingX={1}>
-                  {stories.map((story) => (
-                      <StoryComp
-                          key={story?.id}
-                          title={story?.title}
-                          selected={selectedStory?.id === story?.id}
-                          estimate={story?.estimate}
-                          disabled={!isScrumMaster}
-                          onDelete={handleDeleteClick}
-                          onClick={() => handleSelectStory(story?.id)}
-                      />
-                  ))}
-                </Stack>
-                <Box px={2}>
-                  <Divider />
-                </Box>
-                <Box px={2} my={2}>
-                  <CurrentVotes title="Current votes:" onClick={() => {}} />
-                </Box>
-                <Box px={2}>
-                  <Divider />
-                </Box>
-                <Stack flex={1} justifyContent={"space-between"} px={2} mt={2}>
-                  {isScrumMaster && <EstimateForm />}
-                  <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
-                    <EstimatesFooter
-                        sessionId={sessionId}
-                        buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
-                        onClick={
-                          isScrumMaster ? handleEndSession : handleLeaveSession
-                        }
-                    />
-                  </Box>
-                </Stack>
-              </Stack>
-          )}
-        </FrameComponent>
+    <>
+      <FrameComponent
+        paperSx={{
+          flex: 1,
+        }}
+        sx={{
+          paddingY: 1,
+          paddingX: 0,
+        }}
+        title={"User stories"}
+        icon={
+          isScrumMaster && (
+            <IconButton
+              onClick={() => setOpenQuilEditor(true)}
+              className={blinking ? "blinking" : ""}
+            >
+              <AddCircleOutline color="secondary" fontSize="small" />
+            </IconButton>
+          )
+        }
+      >
+        {status === STATUS.LOADING ? (
+          <LoaderComp />
+        ) : (
+          <Stack height={"100%"}>
+            <Stack spacing={1} height={"25%"} overflow={"auto"} paddingX={1}>
+              {stories.map((story) => (
+                <StoryComp
+                  key={story?.id}
+                  title={story?.title}
+                  selected={selectedStory?.id === story?.id}
+                  estimate={story?.estimate}
+                  disabled={!isScrumMaster}
+                  onDelete={handleDeleteClick}
+                  onClick={() => handleSelectStory(story?.id)}
+                />
+              ))}
+            </Stack>
+            <Box px={2}>
+              <Divider />
+            </Box>
+            <Box px={2} my={2}>
+              <CurrentVotes title="Current votes:" onClick={() => {}} />
+            </Box>
+            <Box px={2}>
+              <Divider />
+            </Box>
+            <Stack flex={1} justifyContent={"space-between"} px={2} mt={2}>
+              {isScrumMaster && <EstimateForm />}
+              <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
+                <EstimatesFooter
+                  sessionId={sessionId}
+                  buttonLabel={
+                    isScrumMaster ? "End Session" : "Leave Session"
+                  }
+                  onClick={
+                    isScrumMaster ? handleEndSession : handleLeaveSession
+                  }
+                />
+              </Box>
+            </Stack>
+          </Stack>
+        )}
+      </FrameComponent>
 
-        <Dialog
-            open={openQuilEditor}
-            onClose={() => setOpenQuilEditor(false)}
-            maxWidth="md"
-            fullWidth
-        >
-          <QuilEditor
-              sendData={addStory}
-              onSubmit={() => setOpenQuilEditor(false)}
-              initial={{ title: "", content: "" }}
-              buttonLabel="Save"
-          />
-        </Dialog>
-        <DeleteConfirmationDialog
-            open={openDelete}
-            onClose={() => handleCloseDelete()}
-            onConfirm={deleteStory}
-            itemName={selectedStory?.title}
+      <Dialog
+        open={openQuilEditor}
+        onClose={() => setOpenQuilEditor(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <QuilEditor
+            sendData={addStory}
+            onSubmit={() => setOpenQuilEditor(false)}
+            initial={{ title: "", content: "<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />" }}
+            buttonLabel="Save"
         />
-      </>
+      </Dialog>
+      <DeleteConfirmationDialog
+        open={openDelete}
+        onClose={() => handleCloseDelete()}
+        onConfirm={deleteStory}
+        itemName={selectedStory?.title}
+      />
+    </>
   );
 };
 
 export default EstimatesView;
 
 const styles = `
-  @keyframes blinkingEffect {
+@keyframes blinkingEffect {
     0% { opacity: 1; }
     50% { opacity: 0; }
     100% { opacity: 1; }
-  }
+}
 
-  .blinking {
+.blinking {
     animation: blinkingEffect 1.5s infinite;
-  }
+}
 `;
 
 const styleSheet = document.createElement("style");

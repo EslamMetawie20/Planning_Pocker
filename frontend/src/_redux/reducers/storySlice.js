@@ -81,7 +81,7 @@ export const revealVotes = createAsyncThunk(
     "story/revealVotes",
     async (_, { dispatch }) => {
         if (await WebSocketManager.isFullyConnectedAsync()) {
-            const destination = BACKEND_ACTIONS.REVEAL_VOTES();
+            const destination = BACKEND_ACTIONS.REVEAL_VOTES();      // <-----  <---
             const action = { destination, body: { sessionId: getTokenData().sessionId } };
             dispatch(sendMessage(action));
         }
@@ -92,7 +92,7 @@ const initialState = {
   selectedStory: null,
   votes: null,
   myVote: null,
-    votesRevealed: false,
+    votesRevealed: false,                           // <-----
     status: STATUS.IDLE,
   error: null,
 };

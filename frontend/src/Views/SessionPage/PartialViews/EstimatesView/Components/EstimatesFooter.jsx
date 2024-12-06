@@ -105,23 +105,6 @@ const EstimatesFooter = ({
                         onClick={handleClose}
                         sx={{
                             backgroundColor: "white",
-                            color: "#CAD400",
-                            fontFamily: "'Source Sans Pro', sans-serif",
-                            padding: "0.5rem 2rem",
-                            borderRadius: "8px",
-                            fontWeight: "bold",
-                            border: "2px solid #CAD400",
-                            "&:hover": {
-                                backgroundColor: "#f9f9f9",
-                            },
-                        }}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleConfirm}
-                        sx={{
-                            backgroundColor: "white",
                             color: "red",
                             fontFamily: "'Source Sans Pro', sans-serif",
                             padding: "0.5rem 2rem",
@@ -133,9 +116,27 @@ const EstimatesFooter = ({
                             },
                         }}
                     >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirm}
+                        sx={{
+                            backgroundColor: "white",
+                            color: "#CAD400",
+                            fontFamily: "'Source Sans Pro', sans-serif",
+                            padding: "0.5rem 2rem",
+                            borderRadius: "8px",
+                            fontWeight: "bold",
+                            border: "2px solid #CAD400",
+                            "&:hover": {
+                                backgroundColor: "#f9f9f9",
+                            },
+                        }}
+                    >
                         Confirm
                     </Button>
                 </DialogActions>
+
             </Dialog>
         </Stack>
     );
