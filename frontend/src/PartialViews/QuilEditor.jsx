@@ -4,6 +4,7 @@ import { TextField, Button, Box, Typography, Stack } from "@mui/material";
 import ReactQuill from "react-quill";
 import PropTypes from "prop-types";
 import LoaderComp from "./../Components/Extras/LoaderComp";
+import { DEFAULT_STORY } from "../Common/Vars/DefaultData";
 
 function QuilEditor({
                         sendData = (title, content) => {
@@ -66,14 +67,13 @@ function QuilEditor({
         alert("Story saved successfully!");
     };
 
-
     useEffect(() => {
         if (initial?.title && initial.content) {
             setTitle(initial.title);
             setContent(initial.content);
         } else {
-            setTitle("Add title here ");
-            setContent("<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />");
+            setTitle(DEFAULT_STORY?.title);
+            setContent(DEFAULT_STORY?.content);
         }
     }, [initial]);
 
@@ -116,7 +116,12 @@ function QuilEditor({
                 />
             </Suspense>
 
-            <Button onClick={handleSubmit} variant="contained" fullWidth sx={{ mt: 8 }}>
+            <Button
+                onClick={handleSubmit}
+                variant="contained"
+                fullWidth
+                sx={{ mt: 8 }}
+            >
                 {buttonLabel}
             </Button>
         </Box>
