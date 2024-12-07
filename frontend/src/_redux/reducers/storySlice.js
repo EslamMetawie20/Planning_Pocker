@@ -61,10 +61,13 @@ export const removeStory = createAsyncThunk(
 
 export const assignEstimate = createAsyncThunk(
   "story/assignEstimate",
-  async ({ storyId, estimate }) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return { storyId, estimate };
-  }
+    async (request, { dispatch }) => {
+      if (await WebSocketManager.isFullyConnectedAsync()) {
+        const destination = BACKEND_ACTIONS.ACCEPT_STORY();
+        const action = { destination, body: request };
+        dispatch(sendMessage(action));
+      }
+    }
 );
 
 export const sendVote = createAsyncThunk(

@@ -2,13 +2,15 @@ import { Box, Button } from "@mui/material";
 import React, { useState } from "react";
 import MiniCardComp from "./MiniCardComp";
 import { ChevronRight, LoopOutlined } from "@mui/icons-material";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { assignEstimate } from "../../../../../_redux/reducers/storySlice";
 import { useSnackbar } from "notistack";
 import { FIBONACCI } from "../../../../../Common/Vars/Constants";
+import { getTokenData } from "../../../../../Common/Utils/tokenUtils.js";
 
 const EstimateForm = () => {
   const [selectedNumber, setSelectedNumber] = useState(0);
+  const { selectedStory } = useSelector((state) => state.story);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -21,7 +23,8 @@ const EstimateForm = () => {
       enqueueSnackbar(`You have selected card number ${selectedNumber}.`, {
         variant: "success",
       });
-      dispatch(assignEstimate(selectedNumber));
+      const request = { sessionCode: getTokenData()?.sessionId, userStoryId: selectedStory?.id, estimate: selectedNumber };
+      dispatch(assignEstimate(request));
     }
   };
 

@@ -95,7 +95,7 @@ const EstimatesView = () => {
           )
         }
       >
-        {status === STATUS.LOADING ? (
+        {false ? (
           <LoaderComp />
         ) : (
           <Stack height={"100%"}>
