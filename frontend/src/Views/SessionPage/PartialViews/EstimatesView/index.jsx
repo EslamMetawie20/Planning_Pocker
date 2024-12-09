@@ -36,6 +36,10 @@ const EstimatesView = () => {
     handleAddStory(title, content);
     setOpenQuilEditor(false);
   };
+  const messages = {
+    endSession: "Are you sure you want to end the session? This action cannot be undone and may affect other participants.",
+    leaveSession: "Are you sure you want to leave the session? You can rejoin later if needed, but some changes may not be saved.",
+  };
 
   const handleRevealVotes = ()=>{
     dispatch(revealVotes())
@@ -125,14 +129,14 @@ const EstimatesView = () => {
               {isScrumMaster && <EstimateForm />}
               <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
                 <EstimatesFooter
-                  sessionId={sessionId}
-                  buttonLabel={
-                    isScrumMaster ? "End Session" : "Leave Session"
-                  }
-                  onClick={
-                    isScrumMaster ? handleEndSession : handleLeaveSession
-                  }
+                    sessionId={sessionId}
+                    buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
+                    confirmationMessage={
+                      isScrumMaster ? messages.endSession : messages.leaveSession
+                    }
+                    onClick={isScrumMaster ? handleEndSession : handleLeaveSession}
                 />
+
               </Box>
             </Stack>
           </Stack>

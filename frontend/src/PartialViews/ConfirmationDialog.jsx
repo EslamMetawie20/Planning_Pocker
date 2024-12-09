@@ -34,14 +34,13 @@ const ConfirmationDialog = ({ open, onClose, onConfirm, title, description }) =>
                 }}
             >
                 <DialogContentText
-                    id="alert-dialog-slide-description"
                     sx={{
                         fontFamily: "'Source Sans Pro', sans-serif",
                         fontSize: "1rem",
                         color: "#333",
                     }}
                 >
-                    {description || "Do you really want to end the session? This action cannot be undone."}
+                    {description}
                 </DialogContentText>
             </DialogContent>
             <DialogActions

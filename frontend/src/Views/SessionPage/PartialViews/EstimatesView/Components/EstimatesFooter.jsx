@@ -23,6 +23,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const EstimatesFooter = ({
                              sessionId = "a23389cc",
                              buttonLabel = "End session",
+                             confirmationMessage = "Are you sure?",
                              onClick = () => {},
                          }) => {
     const [open, setOpen] = useState(false);
@@ -68,7 +69,7 @@ const EstimatesFooter = ({
                 onClose={handleClose}
                 onConfirm={handleConfirm}
                 title="Are you sure?"
-                description="Do you really want to end the session? This action cannot be undone."
+                description={confirmationMessage}
                 confirmColor="#CAD400"
             />
         </Stack>
@@ -78,6 +79,8 @@ const EstimatesFooter = ({
 EstimatesFooter.propTypes = {
     sessionId: PropTypes.string.isRequired,
     buttonLabel: PropTypes.string,
+    confirmationMessage: PropTypes.string,
     onClick: PropTypes.func.isRequired,
 };
+
 export default EstimatesFooter;
