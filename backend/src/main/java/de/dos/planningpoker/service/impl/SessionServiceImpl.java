@@ -10,7 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import de.dos.planningpoker.model.entity.UserStory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Safelist;
 import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
 import de.dos.planningpoker.dto.sessionDto.JoinRequest;
 import de.dos.planningpoker.dto.sessionDto.SessionResponse;
@@ -125,18 +126,37 @@ public class SessionServiceImpl {
                 sessionEntity.setSessionCode(sessionCode);
                 sessionEntity.setActive(false);
 
-                // Kopiere alle User Stories von der In-Memory Session
+                // Kopiere nur User Stories mit Schätzung > 0
                 for (Story wsStory : wsSession.getUserStories().values()) {
-                    UserStory storyEntity = new UserStory();
-                    storyEntity.setTitle(wsStory.getTitle());
-                    storyEntity.setDescription(wsStory.getDescription());
-                    storyEntity.setEstimation(wsStory.getEstimate());
-                    // Verknüpfe Story mit Session
-                    sessionEntity.addUserStory(storyEntity);
+                    // Prüfe ob die Schätzung größer als 0 ist
+                    if (wsStory.getEstimate() > 0) {
+                        UserStory storyEntity = new UserStory();
+                        storyEntity.setTitle(wsStory.getTitle());
+
+                        // Sanitize HTML content before saving
+                        String sanitizedDescription = "";
+                        if (wsStory.getDescription() != null) {
+                            // Erlaubt basic HTML-Formatierung aber entfernt potenziell gefährliche Elemente
+                            sanitizedDescription = Jsoup.clean(
+                                    wsStory.getDescription(),
+                                    Safelist.basic()
+                                            .addTags("div", "span", "p", "br", "ul", "ol", "li")
+                                            .addAttributes("span", "style")
+                                            .addAttributes("p", "style")
+                            );
+                        }
+                        storyEntity.setDescription(sanitizedDescription);
+
+                        storyEntity.setEstimation(wsStory.getEstimate());
+                        // Verknüpfe Story mit Session
+                        sessionEntity.addUserStory(storyEntity);
+                    }
                 }
 
-                // Speichere alles in der Datenbank
-                sessionRepository.save(sessionEntity);
+                // Speichere alles in der Datenbank, nur wenn es User Stories gibt
+                if (!sessionEntity.getUserStories().isEmpty()) {
+                    sessionRepository.save(sessionEntity);
+                }
 
                 // Zum Schluss aus dem Speicher entfernen
                 activeSessions.remove(sessionCode);
