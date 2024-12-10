@@ -17,7 +17,7 @@ public class UserStory {
 
     @Column(nullable = false)
     private String title;
-
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
