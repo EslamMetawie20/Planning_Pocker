@@ -7,19 +7,21 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.dos.planningpoker.model.entity.UserStory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
 import de.dos.planningpoker.dto.sessionDto.JoinRequest;
 import de.dos.planningpoker.dto.sessionDto.SessionResponse;
+import de.dos.planningpoker.dto.sessionDto.SessionState;
 import de.dos.planningpoker.dto.storyDto.AddStoryRequest;
 import de.dos.planningpoker.dto.storyDto.UpdateStoryRequest;
 import de.dos.planningpoker.dto.storyDto.VoteStoryRequest;
 import de.dos.planningpoker.enumeration.Role;
 import de.dos.planningpoker.model.entity.Session;
+import de.dos.planningpoker.model.entity.UserStory;
 import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.Story;
 import de.dos.planningpoker.model.websocket.User;
@@ -61,6 +63,7 @@ public class SessionServiceImpl {
                         false,0
                 );
                 wsSession.putUserStory(story);
+                wsSession.setCurrentUserStory(storyId);
             }
 
             // Add Scrum Master to session and store in memory
@@ -68,14 +71,7 @@ public class SessionServiceImpl {
             activeSessions.put(sessionCode, wsSession);
 
             // Return response
-            return SessionResponse.builder()
-                    .sessionId(sessionCode)
-                    .memberId(scrumMaster.getId())
-                    .scrumMasterId(scrumMaster.getId())
-                    .participants(new ArrayList<>(wsSession.getUsers().values()))
-                    .userStories(new ArrayList<>(wsSession.getUserStories().values()))
-                    .build();
-
+            return new SessionResponse(wsSession, scrumMaster.getId());
         } catch (Exception e) {
             System.err.println("Error creating session: " + e.getMessage());
             e.printStackTrace();
@@ -96,18 +92,7 @@ public class SessionServiceImpl {
 
             // 3. Füge User zur Session hinzu
             wsSession.addUser(newUser);
-
-            return SessionResponse.builder()
-                    .sessionId(wsSession.getId())
-                    .memberId(newUser.getId())
-                    .scrumMasterId(wsSession.getScrumMasterId())
-                    .participants(new ArrayList<>(wsSession.getUsers().values()))
-                    .userStories(new ArrayList<>(wsSession.getUserStories().values()))
-                    .sessionVotes(wsSession.getSessionVotes())
-                    .voteRevealed(wsSession.isVotesRevealed())
-                    .currentUserStoryId(wsSession.getCurrentUserStoryId())
-                    .build();
-
+            return new SessionResponse(wsSession, newUser.getId());
         } catch (Exception e) {
             System.err.println("Error in joinSession: " + e.getMessage());
             e.printStackTrace();
@@ -189,15 +174,9 @@ public class SessionServiceImpl {
         return activeSessions.get(sessionCode);
     }
 
-    public SessionResponse getSessionState(String sessionCode) {
+    public SessionState getSessionState(String sessionCode) {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
-
-        return SessionResponse.builder()
-                .sessionId(wsSession.getId())
-                .scrumMasterId(wsSession.getScrumMasterId())
-                .participants(new ArrayList<>(wsSession.getUsers().values()))
-                .userStories(new ArrayList<>(wsSession.getUserStories().values()))
-                .build();
+        return new SessionState(wsSession);
     }
 
     // ----------------------------------------------------------------------------------------------
@@ -233,6 +212,13 @@ public class SessionServiceImpl {
         selectedStory.setEstimate(estimate);
     }
 
+    public void resetUserStory(String sessionCode, String storyId) {
+        PlanningPokerSession wsSession = getSessionByCode(sessionCode);
+        Story selectedStory = wsSession.getUserStories().get(storyId);
+        selectedStory.setEstimate(0);
+        wsSession.resetRound();
+    }
+
     public void voteUserStory(VoteStoryRequest request) {
         PlanningPokerSession wsSession = getSessionByCode(request.getSessionCode());
 
@@ -244,9 +230,5 @@ public class SessionServiceImpl {
         PlanningPokerSession wsSession = getSessionByCode(sessionCode);
         wsSession.revealVotes();
     }
-
-    public void resetSessionRound(String sessionCode) {
-        PlanningPokerSession wsSession = getSessionByCode(sessionCode);
-        wsSession.resetRound();
-    }
+    
 }

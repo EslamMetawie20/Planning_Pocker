@@ -3,16 +3,24 @@ package de.dos.planningpoker.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.dos.planningpoker.dto.sessionDto.*;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import de.dos.planningpoker.dto.ErrorResponse;
+import de.dos.planningpoker.dto.sessionDto.CloseSessionRequest;
+import de.dos.planningpoker.dto.sessionDto.CreateSessionRequest;
+import de.dos.planningpoker.dto.sessionDto.JoinRequest;
+import de.dos.planningpoker.dto.sessionDto.LeaveRequest;
+import de.dos.planningpoker.dto.sessionDto.ReconnectRequest;
+import de.dos.planningpoker.dto.sessionDto.SessionRequest;
+import de.dos.planningpoker.dto.sessionDto.SessionResponse;
+import de.dos.planningpoker.dto.sessionDto.SessionState;
 import de.dos.planningpoker.dto.storyDto.AcceptStoryRequest;
 import de.dos.planningpoker.dto.storyDto.AddStoryRequest;
 import de.dos.planningpoker.dto.storyDto.DeleteStoryRequest;
+import de.dos.planningpoker.dto.storyDto.ResetStoryRequest;
 import de.dos.planningpoker.dto.storyDto.SelectStoryRequest;
 import de.dos.planningpoker.dto.storyDto.UpdateStoryRequest;
 import de.dos.planningpoker.dto.storyDto.VoteStoryRequest;
@@ -45,7 +53,7 @@ public class PlanningPokerController {
 
     @MessageMapping("/poker/reconnect")
     @SendTo("/topic/session/reconnected")
-    public SessionResponse reconnect(ReconnectRequest request) {
+    public SessionState reconnect(ReconnectRequest request) {
         PlanningPokerSession session = sessionService.getActiveSession(request.getSessionCode());
         if (session == null || !session.isActive()) {
             return null;
@@ -56,14 +64,7 @@ public class PlanningPokerController {
         }
 
         sendSessionState(session.getId());
-        return SessionResponse.builder()
-                .sessionId(session.getId())
-                .participants(new ArrayList<>(session.getUsers().values()))
-                .userStories(new ArrayList<>(session.getUserStories().values()))
-                .sessionVotes(session.getSessionVotes())
-                .voteRevealed(session.isVotesRevealed())
-                .currentUserStoryId(session.getCurrentUserStoryId())
-                .build();
+        return new SessionState(session);
     }
 
     @MessageMapping("/poker/leave")
@@ -152,9 +153,9 @@ public class PlanningPokerController {
         sendSessionState(request.getSessionCode());
     }
 
-    @MessageMapping("/poker/story/clear")
-    public void resetStoryRound(SessionRequest request) {
-        sessionService.resetSessionRound(request.getSessionCode());
+    @MessageMapping("/poker/story/reset")
+    public void resetStory(ResetStoryRequest request) {
+        sessionService.resetUserStory(request.getSessionCode(), request.getUserStoryId());
         sendSessionState(request.getSessionCode());
     }
 
@@ -185,18 +186,4 @@ public class PlanningPokerController {
         List<String> activeIds = sessionService.getActiveSessionCodes();
         messagingTemplate.convertAndSend("/topic/session/ids", activeIds);
     }
-
-    // private void sendParticipantsUpdate(SessionResponse session) {
-    // String sessionId = session.getSessionId();
-    // List<User> participants = session.getParticipants();
-    // String destination = String.format("/topic/session/%s/participants",
-    // sessionId);
-    // messagingTemplate.convertAndSend(destination, participants);
-    // }
-
-    // private void notifyParticipants(String sessionId, ParticipantNotification
-    // notification) {
-    // messagingTemplate.convertAndSend("/topic/session/" + sessionId +
-    // "/participants", notification);
-    // }
 }

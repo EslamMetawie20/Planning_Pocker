@@ -24,7 +24,8 @@ public class PlanningPokerSession {
     private Map<String, Story> userStories = new ConcurrentHashMap<>();
     private List<Vote> sessionVotes = new ArrayList<>();
     private boolean votesRevealed = false;
-    private LocalDateTime roundStart;
+    private LocalDateTime roundStart = LocalDateTime.now();
+    private LocalDateTime roundEnd;
     private String currentUserStoryId;
 
     // Constructor können wir vereinfachen, da @RequiredArgsConstructor das handled
@@ -86,6 +87,7 @@ public class PlanningPokerSession {
 
     public void revealVotes() {
         votesRevealed = true;
+        roundEnd = LocalDateTime.now();
     }
 
     public boolean getRevealStatus() {
@@ -106,5 +108,6 @@ public class PlanningPokerSession {
         sessionVotes.clear();
         votesRevealed = false;
         roundStart = LocalDateTime.now();
+        roundEnd = null;
     }
 }

@@ -1,15 +1,15 @@
 package de.dos.planningpoker.dto.sessionDto;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import de.dos.planningpoker.model.websocket.PlanningPokerSession;
 import de.dos.planningpoker.model.websocket.Story;
 import de.dos.planningpoker.model.websocket.User;
 import de.dos.planningpoker.model.websocket.Vote;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,6 +23,7 @@ public class SessionState {
     private String currentUserStoryId;
 
     private LocalDateTime roundStart;
+    private LocalDateTime roundEnd;
     private List<Vote> sessionVotes;
     private boolean votesRevealed;
     
@@ -36,6 +37,7 @@ public class SessionState {
         this.currentUserStoryId = session.getCurrentUserStoryId();
 
         this.roundStart = session.getRoundStart();
+        this.roundEnd = session.getRoundEnd();
         this.sessionVotes = session.getSessionVotes();
         this.votesRevealed = session.getRevealStatus();
 
@@ -50,6 +52,7 @@ public class SessionState {
         this.currentUserStoryId = null;
 
         this.roundStart = null;
+        this.roundEnd = null;
         this.sessionVotes = null;
         this.votesRevealed = false;
     }
