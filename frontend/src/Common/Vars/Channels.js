@@ -1,7 +1,4 @@
-export const QUEUE_PATHS = {
-  RECEIVE_MESSAGE: () => "/user/queue/response",
-  USER_MEMBER_UPDATES: () => "/user/queue/memberUpdates",
-};
+export const QUEUE_PATHS = {};
 
 export const TOPIC_PATHS = {
   SESSION_IDS_GET: () => "/topic/session/ids",
@@ -9,10 +6,6 @@ export const TOPIC_PATHS = {
   SESSION_JOINED: () => "/topic/session/joined",
   SESSION_RECONNECTED: () => "/topic/session/reconnected",
   SESSION_UPDATES: (sessionId) => `/topic/session/${sessionId}/state`,
-  PARTICIPANTS_UPDATES: (sessionId) =>
-    `/topic/session/${sessionId}/participants`,
-  STORY_UPDATED: (storyId) => `/topic/userstory/${storyId}`,
-  STORY_UPDATED: (sessionId) => `/topic/session/${sessionId}/userstory`,
 };
 
 export const BACKEND_ACTIONS = {
@@ -23,20 +16,14 @@ export const BACKEND_ACTIONS = {
   LEAVE_SESSION: () => "/app/poker/leave",
   END_SESSION: () => "/app/poker/close",
   CLOSE_SESSION: () => "/app/poker/close",
-  ADD_STORY: (sessionId) => `/userstories/add`,
-  DELETE_STORY: (storyId) => `/userstories/delete/${storyId}`,
-  UPDATE_STORY: (storyId) => `/userstories/update/${storyId}`,
-  ADD_STORY: (sessionId) => `/app/poker/${sessionId}/userstory/add`,
+  ADD_STORY: () => `/app/poker/story/add`,
+  UPDATE_STORY: () => `/app/poker/story/update`,
+  DELETE_STORY: () => `/app/poker/story/delete`,
+  SELECT_STORY: () => `/app/poker/story/select`,
+  VOTE_STORY: () => `/app/poker/story/vote`,
+  REVEAL_VOTES: () => `/app/poker/story/reveal`,
+  ACCEPT_STORY: () => `/app/poker/story/accept`,
+  RESET_STORY: () => `/app/poker/story/reset`,
 };
 
-export const FRONTEND_ACTIONS = {
-  SESSION_CREATED: "SESSION_CREATED",
-  SESSION_CREATION_FAILED: "SESSION_CREATION_FAILED",
-  SESSION_JOINED: "SESSION_JOINED",
-  SESSION_JOIN_FAILED: "SESSION_JOIN_FAILED",
-  SESSION_LEFT: "SESSION_LEFT",
-  SESSION_RECONNECTED: "SESSION_RECONNECTED",
-  SESSION_RECONNECT_FAILED: "SESSION_RECONNECT_FAILED",
-  MEMBER_JOINED: "MEMBER_JOINED",
-  MEMBER_LEFT: "MEMBER_LEFT",
-};
+export const FRONTEND_ACTIONS = {};

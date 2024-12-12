@@ -7,45 +7,52 @@ import { STATUS } from "../../../../Common/Vars/Constants";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import { getTokenData } from "../../../../Common/Utils/tokenUtils";
 
-
-
 const MembersView = () => {
-    const { members, status } = useSelector((state) => state.member);
+  const { members, status } = useSelector((state) => state.member);
+  const votes = useSelector((state) => state.story.votes);
+  const votesRevealed = useSelector((state) => state.story.votesRevealed);
+  const tokenData = getTokenData();
+  const currentMemberId = tokenData?.memberId;
 
-    // Get the current member ID from the token
-    const tokenData = getTokenData();
-    const currentMemberId = tokenData?.memberId;
+  const adjustedMembers = members
+    .map((member) => ({
+      ...member,
+      isCurrent: member.id === currentMemberId,
+    }))
+    .sort((a, b) => b.isCurrent - a.isCurrent);
 
-    // Sort members: Move the current member to the top
-    const sortedMembers = members
-        ? [...members].sort((a, b) => (a.id === currentMemberId ? -1 : b.id === currentMemberId ? 1 : 0))
-        : [];
-
-    return (
-        <FrameComponent
-            paperSx={{
-                flex: 1,
-            }}
-            title={`Members ${members?.length}`}
-        >
-            {status === STATUS.LOADING ? (
-                <LoaderComp />
-            ) : (
-                <Stack spacing={1.5}>
-                    {sortedMembers.map((item, index) => (
-                        <MemberComponent
-                            key={index + item?.name}
-                            name={item?.id === currentMemberId ? "You" : item?.name}
-                            role={item?.role}
-                            vote={item?.lastVote}
-                            avatarIndex={item?.avatarIndex}
-                            voted={item?.voted}
-                        />
-                    ))}
-                </Stack>
-            )}
-        </FrameComponent>
-    );
+  return (
+    <FrameComponent
+      paperSx={{
+        flex: 1,
+      }}
+      title={`Members ${members?.length}`}
+    >
+      {status === STATUS.LOADING ? (
+        <LoaderComp />
+      ) : (
+        <Stack spacing={1.5}>
+          {adjustedMembers.map((item, index) => (
+            <MemberComponent
+              noVote={item?.role === "Scrum Master"}
+              key={index + item?.name}
+              name={item.isCurrent ? item?.name + " ⭐" : item?.name}
+              role={item?.role}
+              revealed={votesRevealed}
+              vote={
+                votes?.find((vote) => vote?.memberId === item?.id)
+                  ?.estimation || 0
+              }
+              avatarIndex={item?.avatarIndex}
+              voted={
+                votes?.find((vote) => vote?.memberId === item?.id)?.estimation
+              }
+            />
+          ))}
+        </Stack>
+      )}
+    </FrameComponent>
+  );
 };
 
 export default MembersView;
