@@ -2,7 +2,6 @@ import { setMembers } from "../../_redux/reducers/memberSlice";
 import { clearSession } from "../../_redux/reducers/sessionSlice";
 import { setVotesRevealed } from "../../_redux/reducers/storySlice";
 
-
 import {
   setSelectedStory,
   setStories,
@@ -23,8 +22,13 @@ function formatRoleString(role) {
 }
 
 export const dispatchSessionData = (dispatch, data) => {
-  console.log(data);
-  const { userStories, participants, currentUserStoryId, sessionVotes, votesRevealed } = data;
+  const {
+    userStories,
+    participants,
+    currentUserStoryId,
+    sessionVotes,
+    votesRevealed,
+  } = data;
   let stories = userStories;
   let members = participants;
   let votes = sessionVotes;
@@ -67,7 +71,6 @@ export const dispatchSessionData = (dispatch, data) => {
 
   // ---------------------
   dispatch(setVotesRevealed(votesRevealed));
-
 };
 
 export const handleSessionUpdates = (dispatch, data) => {
@@ -132,7 +135,7 @@ export const handleSessionResponse = async (
             }
           );
 
-          WebSocketManager.unsubscribe(destination); // Unsubscribe to prevent duplicate handling
+          WebSocketManager.unsubscribe(subscription); // Unsubscribe to prevent duplicate handling
           resolve({ sessionId, token });
         } catch (error) {
           console.error("Error handling session creation message:", error);
