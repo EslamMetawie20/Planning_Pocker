@@ -9,7 +9,8 @@ import { useSnackbar } from "notistack";
 
 const CurrentVotes = ({
   title = "Last round:",
-  time = new Date(),
+  startTime = new Date(),
+  endTime = new Date(),
   max = "--",
   min = "--",
   onClick,
@@ -91,7 +92,11 @@ const CurrentVotes = ({
           justifyContent={"space-between"}
         >
           <Typography variant="caption">{"Time"}</Typography>
-          <TimeCounter startDate={time} isRunning={true} />
+          <TimeCounter
+            startDate={startTime}
+            endDate={endTime}
+            isRunning={true}
+          />
         </Stack>
         <InfoRow
           color={Number(currentMax) > 0 ? "success" : undefined}
@@ -110,7 +115,9 @@ const CurrentVotes = ({
 
 CurrentVotes.prototypes = {
   title: PropTypes.string,
-  time: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
+  startTime: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
+    .isRequired,
+  endTime: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.string])
     .isRequired,
   max: PropTypes.string,
   min: PropTypes.string,

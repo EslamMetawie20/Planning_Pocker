@@ -61,13 +61,24 @@ export const removeStory = createAsyncThunk(
 
 export const assignEstimate = createAsyncThunk(
   "story/assignEstimate",
-    async (request, { dispatch }) => {
-      if (await WebSocketManager.isFullyConnectedAsync()) {
-        const destination = BACKEND_ACTIONS.ACCEPT_STORY();
-        const action = { destination, body: request };
-        dispatch(sendMessage(action));
-      }
+  async (request, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.ACCEPT_STORY();
+      const action = { destination, body: request };
+      dispatch(sendMessage(action));
     }
+  }
+);
+
+export const resetStory = createAsyncThunk(
+  "story/resetStory",
+  async (request, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.RESET_STORY();
+      const action = { destination, body: request };
+      dispatch(sendMessage(action));
+    }
+  }
 );
 
 export const sendVote = createAsyncThunk(
@@ -81,22 +92,26 @@ export const sendVote = createAsyncThunk(
   }
 );
 export const revealVotes = createAsyncThunk(
-    "story/revealVotes",
-    async (_, { dispatch }) => {
-        if (await WebSocketManager.isFullyConnectedAsync()) {
-            const destination = BACKEND_ACTIONS.REVEAL_VOTES();      // <-----  <---
-            const action = { destination, body: { sessionCode: getTokenData().sessionId } };
-            dispatch(sendMessage(action));
-        }
+  "story/revealVotes",
+  async (_, { dispatch }) => {
+    if (await WebSocketManager.isFullyConnectedAsync()) {
+      const destination = BACKEND_ACTIONS.REVEAL_VOTES(); // <-----  <---
+      const action = {
+        destination,
+        body: { sessionCode: getTokenData().sessionId },
+      };
+      dispatch(sendMessage(action));
     }
+  }
 );
+
 const initialState = {
   stories: [],
   selectedStory: null,
   votes: null,
   myVote: null,
-    votesRevealed: false,                           // <-----
-    status: STATUS.IDLE,
+  votesRevealed: false, // <-----
+  status: STATUS.IDLE,
   error: null,
 };
 
@@ -153,6 +168,11 @@ const storySlice = createSlice({
   },
 });
 
-export const { setVotes, setMyVote, setStories, setSelectedStory , setVotesRevealed } =
-  storySlice.actions;
+export const {
+  setVotes,
+  setMyVote,
+  setStories,
+  setSelectedStory,
+  setVotesRevealed,
+} = storySlice.actions;
 export default storySlice.reducer;

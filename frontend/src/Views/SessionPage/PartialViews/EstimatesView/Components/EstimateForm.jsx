@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import MiniCardComp from "./MiniCardComp";
 import { ChevronRight, LoopOutlined } from "@mui/icons-material";
 import { useDispatch, useSelector } from "react-redux";
-import { assignEstimate } from "../../../../../_redux/reducers/storySlice";
+import {
+  assignEstimate,
+  resetStory,
+} from "../../../../../_redux/reducers/storySlice";
 import { useSnackbar } from "notistack";
 import { FIBONACCI } from "../../../../../Common/Vars/Constants";
 import { getTokenData } from "../../../../../Common/Utils/tokenUtils.js";
@@ -23,9 +26,21 @@ const EstimateForm = () => {
       enqueueSnackbar(`You have selected card number ${selectedNumber}.`, {
         variant: "success",
       });
-      const request = { sessionCode: getTokenData()?.sessionId, userStoryId: selectedStory?.id, estimate: selectedNumber };
+      const request = {
+        sessionCode: getTokenData()?.sessionId,
+        userStoryId: selectedStory?.id,
+        estimate: selectedNumber,
+      };
       dispatch(assignEstimate(request));
     }
+  };
+
+  const handleResetStory = () => {
+    const request = {
+      sessionCode: getTokenData()?.sessionId,
+      userStoryId: selectedStory?.id,
+    };
+    dispatch(resetStory(request));
   };
 
   return (
@@ -52,7 +67,7 @@ const EstimateForm = () => {
         {...buttonProps}
         variant="outlined"
         startIcon={<LoopOutlined />}
-        onClick={() => dispatch(assignEstimate(0))}
+        onClick={handleResetStory}
       >
         repeat
       </Button>

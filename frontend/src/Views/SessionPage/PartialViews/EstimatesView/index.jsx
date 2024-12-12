@@ -10,18 +10,16 @@ import EstimatesFooter from "./Components/EstimatesFooter";
 import useStories from "../../../../Common/Hooks/useStories";
 import LoaderComp from "../../../../Components/Extras/LoaderComp";
 import QuilEditor from "../../../../PartialViews/QuilEditor.jsx";
-import { STATUS } from "../../../../Common/Vars/Constants";
 import { useDispatch, useSelector } from "react-redux";
 import {
   endSession,
   leaveSession,
 } from "../../../../_redux/reducers/sessionSlice.js";
-import  { revealVotes } from  "../../../../_redux/reducers/storySlice.js";
+import { revealVotes } from "../../../../_redux/reducers/storySlice.js";
 import DeleteConfirmationDialog from "./Components/DeleteConfirmationDialog.jsx";
 
 const EstimatesView = () => {
   const {
-    status,
     stories,
     selectedStory,
     handleSelectStory,
@@ -30,20 +28,24 @@ const EstimatesView = () => {
   } = useStories();
   const [openQuilEditor, setOpenQuilEditor] = useState(false);
   const dispatch = useDispatch();
-  const { sessionId, isScrumMaster } = useSelector((state) => state.session);
+  const { sessionId, isScrumMaster, roundStart, roundEnd } = useSelector(
+    (state) => state.session
+  );
 
   const addStory = (title, content) => {
     handleAddStory(title, content);
     setOpenQuilEditor(false);
   };
   const messages = {
-    endSession: "Are you sure you want to end the session? This action cannot be undone and may affect other participants.",
-    leaveSession: "Are you sure you want to leave the session? You can rejoin later if needed, but some changes may not be saved.",
+    endSession:
+      "Are you sure you want to end the session? This action cannot be undone and may affect other participants.",
+    leaveSession:
+      "Are you sure you want to leave the session? You can rejoin later if needed, but some changes may not be saved.",
   };
 
-  const handleRevealVotes = ()=>{
-    dispatch(revealVotes())
-  }
+  const handleRevealVotes = () => {
+    dispatch(revealVotes());
+  };
 
   const handleLeaveSession = () => {
     dispatch(leaveSession());
@@ -120,7 +122,12 @@ const EstimatesView = () => {
               <Divider />
             </Box>
             <Box px={2} my={2}>
-              <CurrentVotes title="Current votes:" onClick={handleRevealVotes} />
+              <CurrentVotes
+                startTime={roundStart}
+                endTime={roundEnd}
+                title="Current votes:"
+                onClick={handleRevealVotes}
+              />
             </Box>
             <Box px={2}>
               <Divider />
@@ -129,14 +136,15 @@ const EstimatesView = () => {
               {isScrumMaster && <EstimateForm />}
               <Box display={"flex"} flexDirection={"column"} marginTop={"auto"}>
                 <EstimatesFooter
-                    sessionId={sessionId}
-                    buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
-                    confirmationMessage={
-                      isScrumMaster ? messages.endSession : messages.leaveSession
-                    }
-                    onClick={isScrumMaster ? handleEndSession : handleLeaveSession}
+                  sessionId={sessionId}
+                  buttonLabel={isScrumMaster ? "End Session" : "Leave Session"}
+                  confirmationMessage={
+                    isScrumMaster ? messages.endSession : messages.leaveSession
+                  }
+                  onClick={
+                    isScrumMaster ? handleEndSession : handleLeaveSession
+                  }
                 />
-
               </Box>
             </Stack>
           </Stack>
@@ -150,10 +158,14 @@ const EstimatesView = () => {
         fullWidth
       >
         <QuilEditor
-            sendData={addStory}
-            onSubmit={() => setOpenQuilEditor(false)}
-            initial={{ title: "", content: "<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />" }}
-            buttonLabel="Save"
+          sendData={addStory}
+          onSubmit={() => setOpenQuilEditor(false)}
+          initial={{
+            title: "",
+            content:
+              "<b>Beschreibung: </b> <br /> <br />  <b>Ist - Zustand:</b> <br /> <br /> <b>Soll- Zustand:</b> <br /> <br />  <b>AKZ: </b> <br /> <br /> <b>Fazit:</b> <br /> <br />",
+          }}
+          buttonLabel="Save"
         />
       </Dialog>
       <DeleteConfirmationDialog

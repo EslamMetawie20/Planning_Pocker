@@ -148,6 +148,8 @@ const thunkReducers = [
 const initialState = {
   activeSessionIds: null,
   sessionId: null,
+  roundStart: null,
+  roundEnd: null,
   token: null,
   isScrumMaster: null,
   status: STATUS.IDLE,
@@ -163,6 +165,12 @@ const sessionSlice = createSlice({
     },
     setScrumMaster(state, { payload }) {
       state.isScrumMaster = payload;
+    },
+    setRoundStart(state, { payload }) {
+      state.roundStart = payload;
+    },
+    setRoundEnd(state, { payload }) {
+      state.roundEnd = payload;
     },
     clearSession(state) {
       state.sessionId = null;
@@ -180,6 +188,11 @@ const sessionSlice = createSlice({
   },
 });
 
-export const { setActiveSessionIds, clearSession, setScrumMaster } =
-  sessionSlice.actions;
+export const {
+  setActiveSessionIds,
+  clearSession,
+  setScrumMaster,
+  setRoundStart,
+  setRoundEnd,
+} = sessionSlice.actions;
 export default sessionSlice.reducer;

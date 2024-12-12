@@ -1,5 +1,9 @@
 import { setMembers } from "../../_redux/reducers/memberSlice";
-import { clearSession } from "../../_redux/reducers/sessionSlice";
+import {
+  clearSession,
+  setRoundEnd,
+  setRoundStart,
+} from "../../_redux/reducers/sessionSlice";
 import { setVotesRevealed } from "../../_redux/reducers/storySlice";
 
 import {
@@ -28,6 +32,8 @@ export const dispatchSessionData = (dispatch, data) => {
     currentUserStoryId,
     sessionVotes,
     votesRevealed,
+    roundStart,
+    roundEnd,
   } = data;
   let stories = userStories;
   let members = participants;
@@ -71,6 +77,8 @@ export const dispatchSessionData = (dispatch, data) => {
 
   // ---------------------
   dispatch(setVotesRevealed(votesRevealed));
+  dispatch(setRoundStart(new Date(roundStart)));
+  dispatch(setRoundEnd(new Date(roundEnd)));
 };
 
 export const handleSessionUpdates = (dispatch, data) => {
@@ -116,6 +124,7 @@ export const handleSessionResponse = async (
       // Subscribe to the session creation topic
       await WebSocketManager.subscribe(subscription, async (data) => {
         try {
+          debugger;
           // Handle session updates and extract sessionId and token
           handleSessionUpdates(dispatch, data);
           const { sessionId } = data;

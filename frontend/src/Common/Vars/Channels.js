@@ -23,6 +23,7 @@ export const BACKEND_ACTIONS = {
   VOTE_STORY: () => `/app/poker/story/vote`,
   REVEAL_VOTES: () => `/app/poker/story/reveal`,
   ACCEPT_STORY: () => `/app/poker/story/accept`,
+  RESET_STORY: () => `/app/poker/story/reset`,
 };
 
 export const FRONTEND_ACTIONS = {};
