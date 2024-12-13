@@ -31,13 +31,13 @@ const CurrentVotes = ({
   const allVoted = votes?.length === members?.length - 1;
 
   const handleRevealVotes = () => {
-    if (members.length === 0) {
+    if (members.length === 1) {
       enqueueSnackbar("No members have joined yet.", { variant: "warning" });
       return;
     }
 
     onClick();
-    if (members.length === 1) {
+    if (members.length === 2) {
       enqueueSnackbar("There is only one member.", { variant: "info" });
       if (votes?.length === 1) {
         const singleVote = votes[0]?.estimation;
@@ -47,7 +47,7 @@ const CurrentVotes = ({
       return;
     }
 
-    if (votes?.length > 0) {
+    if (votes?.length > 1) {
       enqueueSnackbar("Votes revealed successfully!", { variant: "success" });
     } else {
       enqueueSnackbar("No estimates have been added yet.", { variant: "info" });
