@@ -9,9 +9,10 @@ Planning Poker is a web application designed to facilitate voting among Scrum te
 - **Multiple Voting Systems**: Supports different voting methodologies for story estimation.
 - **Multiple Stories**: Team members can vote on different user stories.
 - **Real-Time Communication**: Uses WebSockets for instant updates.
+- **Fast Compilation**: Utilizes Vite for quick frontend builds.
 
 ## Technologies Used
-- **Frontend**: React.js (with Vite for faster compilation)
+- **Frontend**: React.js (with Vite for faster compilation and development)
 - **Backend**: Java (Spring Boot)
 - **Database**: PostgreSQL (deployed using Docker/Podman)
 - **RESTful APIs**: Facilitates communication between the frontend and backend.
@@ -30,7 +31,7 @@ Ensure you have the following installed:
 
 #### 1. Clone the Repository
 ```sh
- git clone https://github.com/your-repo/planning-poker.git
+ git clone https://github.com/EslamMetawie20/Planning_Pocker.git
  cd planning-poker
 ```
 
