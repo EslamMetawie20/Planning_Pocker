@@ -78,12 +78,5 @@ npm run dev
 ## WebSocket Communication
 - **`/ws/session/{sessionId}`**: Handles real-time updates of voting results.
 
-## License
-This project is open-source and available under the MIT License.
 
-## Contributing
-Contributions are welcome! Feel free to fork the repository and submit pull requests.
-
-## Contact
-For questions or issues, please contact the development team at `support@planningpoker.com`.
 
